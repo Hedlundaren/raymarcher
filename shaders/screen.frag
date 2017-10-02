@@ -44,6 +44,7 @@ float waterSDF(vec3 p) {
 }
 
 float sceneSDF(vec3 p) {
+    // return intersectSDF(waterSDF(p), cubeSDF(p, vec3(0.5), 0.1));
     return intersectSDF(waterSDF(p), sphereSDF(p));
 }
 
@@ -95,18 +96,20 @@ void main(void)
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 		float dist = sceneSDF(ray);
-		ray += dist * rayDirection;
 
 		if(dist < EPSILON){ // Hit surface
 			normal = estimateNormal(ray);
 
-			float diffuse = max(normalize(dot(normal, light)), 0);
+			float diffuse = max(dot(normal, light), 0.0);
 			float ambient = 0.004;
 			vec3 R = reflect(-light, normal);
 			vec3 V = normalize(camPos - ray); // View direction
-			float specular = pow(max(dot(R, V), 0), 20);
-			v.x +=  ambient +  0.01 * diffuse + 0.01 * specular;
+			float specular = pow(max(dot(R, V), 0), 5);
+			float specular2 = pow(max(dot(R, V), 0), 100);
+			v.x +=  ambient +  0.01 * diffuse + 0.01 * specular + 0.01 * specular2;
 		}
+		ray += dist * rayDirection;
+		
 	}
 
 
