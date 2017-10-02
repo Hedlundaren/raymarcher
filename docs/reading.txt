@@ -1,0 +1,5 @@
+Ray Marching and Signed Distance Functions
+http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
+
+Sphere Tracing Estimators (Benjamins Assignment)
+http://graphics.stanford.edu/courses/cs348b/article/28
