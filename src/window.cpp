@@ -21,7 +21,7 @@ Window::Window(GLFWwindow* &window, int W, int H) : width(W), height(H)
         exit(-1);
     }
 
-    glfwSetWindowPos(window, 900, 270);
+    glfwSetWindowPos(window, 300, 1500);
 
     glfwMakeContextCurrent(window); // Initialize GLEW
     glewExperimental = true;        // Needed in core profile

@@ -11,8 +11,8 @@
 #include "quad.h"
 #include "sphere.h"
 
-#define W 512
-#define H 512
+#define W 1000
+#define H 500
 
 int main()
 {
