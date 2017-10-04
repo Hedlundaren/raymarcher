@@ -2,4 +2,4 @@
 .vscode/
 *.o
 main
-docs/*.pfd
+docs/TransferFunctions.pdf
