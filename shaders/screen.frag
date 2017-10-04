@@ -61,6 +61,17 @@ vec3 estimateNormal(vec3 p) {
     ));
 }
 
+vec4 readVolume(int x, int y, int z){
+	vec4 voxel;
+	vec2 volumeCoord;
+	ivec2 size = textureSize(volumeTexture, 0);
+	float size_x = size.x / 10.0;
+	volumeCoord.x = ((x + size_x*z) + 0.5)/size.x;
+	volumeCoord.y = (y + 0.5)/size.y ;
+	voxel = texture(volumeTexture, volumeCoord);
+
+	return voxel;
+}
 
 void main(void)
 {
@@ -123,13 +134,16 @@ void main(void)
 		ray += dist * rayDirection;
 	}
 
-	float depth = length(ray - pixelPos);
 
 
-	vec3 mixColor = v.xyz + volume.xyz;
+	//vec3 mixColor = mix(v.xyz, voxel.xyz, 0.5);
 
+	//float depth = length(ray - pixelPos);
 	// if(depth - nearClip > volume.a){
 	// 	mixColor += volume.xyz;
 	// }
-	outColor = vec4(mixColor, 1.0);
+	
+	
+	
+	outColor = vec4(v, 1.0);
 }

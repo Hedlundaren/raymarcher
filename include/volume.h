@@ -17,6 +17,7 @@ public:
 
 
 private:
-	Framebuffer data;
+    Framebuffer data;
+    glm::vec3 resolution;
     
 };
