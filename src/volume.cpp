@@ -35,3 +35,8 @@ glm::vec4 Volume::readData(const int &x, const int &y, const int &z) const
     glReadPixels(x + resolution.x * z, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
     return pixels[0];
 }
+
+glm::vec3 Volume::getResolution() const
+{
+    return resolution;
+}

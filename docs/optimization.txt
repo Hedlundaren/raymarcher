@@ -1,0 +1,9 @@
+Ideas
+=====================
+Store unsigned data positions
+Precalculate shader variables
+Rotation with quaternions
+
+Finished
+=====================
+Remove unnecessary uniforms

@@ -145,15 +145,13 @@ GLuint ShaderProgram::compile(GLuint type, GLchar const *source) {
 	return shader;
 }
 
-void ShaderProgram::updateCommonUniforms(MouseRotator rotator, float width, float height, float time, glm::vec3 clear_color) {
+void ShaderProgram::updateCommonUniforms(MouseRotator rotator, float width, float height, float time) {
 	// Uniforms
-	GLint MV_Loc, P_Loc, lDir_Loc, camPos_Loc, clear_color_Loc, time_Loc, resolution_Loc = -1;
+	GLint MV_Loc, P_Loc, camPos_Loc, time_Loc, resolution_Loc = -1;
 	time_Loc = glGetUniformLocation(*this, "time");
 	MV_Loc = glGetUniformLocation(*this, "MV");
 	P_Loc = glGetUniformLocation(*this, "P");
 	camPos_Loc = glGetUniformLocation(*this, "camPos");
-	lDir_Loc = glGetUniformLocation(*this, "lDir");
-	clear_color_Loc = glGetUniformLocation(*this, "clear_color");
 	resolution_Loc = glGetUniformLocation(*this, "resolution");
 
 	glm::vec2 resolution = glm::vec2(width, height);
@@ -163,28 +161,19 @@ void ShaderProgram::updateCommonUniforms(MouseRotator rotator, float width, floa
 	
 	glm::mat4 VRotX = glm::rotate(M, (-rotator.phi), glm::vec3(0.0f, 1.0f, 0.0f)); //Rotation about y-axis
 	glm::mat4 VRotY = glm::rotate(M, (rotator.theta), glm::vec3(1.0f, 0.0f, 0.0f)); //Rotation about x-axis
-	glm::vec4 camPos = glm::vec4(rotator.transX, 0.0f, -10.0f + rotator.zoom, 1.0f);
-	//glm::mat4 tests = glm::translate(M, glm::vec3(camPos) + glm::vec3(rotator.transX, rotator.transX, 0.0));
+	glm::vec4 camPos = glm::vec4(rotator.transX, 0.0f, -6.0f + rotator.zoom, 1.0f);
 	camPos = VRotX * VRotY * camPos;
 	glm::vec3 scene_center(0.0f, 0.0f, 0.0f);
 	glm::mat4 V = glm::lookAt(glm::vec3(camPos), scene_center, glm::vec3(0.0f, 1.0f, 0.0f));
 	P = glm::perspectiveFov(50.0f, static_cast<float>(width), static_cast<float>(height), 0.1f, 200.0f);
 	MV = V * M;
 	
-	glm::vec3 lDir = glm::vec3(1.0f, 0.0f, 0.0f);
-
 	//Send uniform variables
 	glProgramUniform1f(*this, time_Loc, time);
 	glUniformMatrix4fv(MV_Loc, 1, GL_FALSE, &MV[0][0]);
 	glUniformMatrix4fv(P_Loc, 1, GL_FALSE, &P[0][0]);
 	glUniform3fv(camPos_Loc, 1, &camPos[0]);
-	glUniform3fv(lDir_Loc, 1, &lDir[0]);
-	glUniform3fv(clear_color_Loc, 1, &clear_color[0]);
 	glUniform2fv(resolution_Loc, 1, &resolution[0]);
 
 
-	// 3D texture stuff
-	// glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, volume->width(), volume->height(), volume->depth(), 0, GL_LUMINANCE, GL_FLOAT, density);
-	// GLint gSampler = glGetUniformLocation(*this, "volume");
-	// glUniform1i(gSampler, 0);
 }

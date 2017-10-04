@@ -12,8 +12,8 @@
 #include "sphere.h"
 #include "volume.h"
 
-#define W 1920
-#define H 1080
+#define W 1920/2
+#define H 1080/2
 
 int main()
 {
@@ -43,70 +43,81 @@ int main()
 	MouseRotator rotator;
 	rotator.init(window);
 
-	// Volume data
-	Volume volume(10, 10, 10);
+	// Clamping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
+	// Interpolation
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// Polygons
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	// Initialize Window
+	glViewport(0, 0, W, H);
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glCullFace(GL_BACK);
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
+
+	// Volume data
+	Volume volume(20, 20, 20);
+	
 	do
 	{
-		w.initFrame();
 		time += 0.1f;
 		rotator.poll(window);
 
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
 		// Volume data
 		volume.bindBuffer();
-		post_shader();
-		glViewport(0,0,W,H);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		post_shader.updateCommonUniforms(rotator, W, H, time, glm::vec3(0));
-		quad.draw();
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		
-		// Change Volume Data
-		//volume.writeData(10,10,10, glm::vec4(0,1,0,1));
-		
-		for(int i = 0; i < 10; i++){
-			for(int j = 0; j < 10; j++){
-				for(int k = 0; k < 10; k++){
+		for(int i = 0; i < volume.getResolution().x; i++){
+			for(int j = 0; j < volume.getResolution().y; j++){
+				for(int k = 0; k < volume.getResolution().z; k++){
 					volume.drawData(i, j, k, glm::vec4(0,0,0,1));
+					
+					float v1 = rand() % 100;
+					if(v1 < 30){
+						volume.drawData(i, j, k, glm::vec4(v1/100,0,0,1));
+					}
 				}
 			}
 		}
-
 		volume.drawData(0, 0, 0, glm::vec4(0.0,0,1,1));
-		volume.drawData(9, 0, 0, glm::vec4(0.3,0,1,1));
-		volume.drawData(0, 0, 9, glm::vec4(0.6,0,1,1));
-		volume.drawData(9, 0, 9, glm::vec4(0.9,0,1,1));
-
-		volume.drawData(0, 9, 9, glm::vec4(0.0,1,0,1));
-		volume.drawData(9, 9, 9, glm::vec4(0.3,1,0,1));
-		volume.drawData(0, 9, 0, glm::vec4(0.6,1,0,1));
-		volume.drawData(9, 9, 0, glm::vec4(0.9,1,0,1));
-
+		volume.drawData(19, 0, 0, glm::vec4(0.3,0,1,1));
+		volume.drawData(0, 0, 19, glm::vec4(0.6,0,1,1));
+		volume.drawData(19, 0, 19, glm::vec4(0.9,0,1,1));
+	
+		volume.drawData(0, 19, 19, glm::vec4(0.0,1,0,1));
+		volume.drawData(19, 19, 19, glm::vec4(0.3,1,0,1));
+		volume.drawData(0, 19, 0, glm::vec4(0.6,1,0,1));
+		volume.drawData(19, 19, 0, glm::vec4(0.9,1,0,1));
+	
+		volume.drawData(10, 10, 10, glm::vec4(1,1,1,1));
 		
-		glm::vec4 pixel = volume.readData(0, 0, 1);
-		std::cout << "r: " << pixel.r << "g: " << pixel.g << "b: " << pixel.b << std::endl;
 		
 		// Ray marcher
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+		
 		screen_shader();
 		glViewport(0,0,W,H);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
-		screen_shader.updateCommonUniforms(rotator, W, H, time, glm::vec3(0));
+		screen_shader.updateCommonUniforms(rotator, W, H, time);
 		screenLoc = glGetUniformLocation(screen_shader, "volumeTexture");
 		glUniform1i(screenLoc, 0);
 		glActiveTexture(GL_TEXTURE0);
 		volume.bindTexture();
+		GLint volumeResolution_Loc = glGetUniformLocation(screen_shader, "volumeResolution");
+		glUniform3fv(volumeResolution_Loc, 1, &volume.getResolution()[0]);
 		
-		// Clamping
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-		// Interpolation
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		quad.draw();
 
 

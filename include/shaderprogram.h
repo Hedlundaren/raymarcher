@@ -39,7 +39,7 @@ public:
 
 	~ShaderProgram();
 
-	void updateCommonUniforms(MouseRotator rotator, float width, float height, float time, glm::vec3 clear_color);
+	void updateCommonUniforms(MouseRotator rotator, float width, float height, float time);
 
 protected:
 	GLuint AttachShader(GLuint shaderType, std::string source);

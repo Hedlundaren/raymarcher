@@ -14,7 +14,7 @@ public:
     void bindBuffer();
     void drawData(const int &x, const int &y, const int &z, const glm::vec4 &v);
     glm::vec4 readData(const int &x, const int &y, const int &z) const;
-
+    glm::vec3 getResolution() const;
 
 private:
     Framebuffer data;
