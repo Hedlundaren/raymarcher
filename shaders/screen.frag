@@ -73,6 +73,18 @@ vec4 readVolume(int x, int y, int z){
 	return voxel;
 }
 
+vec4 readVolume(float x, float y, float z){
+
+	// center volume
+	x += 5.0;
+	y += 5.0;
+	z += 5.0;
+	int ix = int(floor(x));
+	int iy = int(floor(y));
+	int iz = int(floor(z));
+	return readVolume(ix, iy, iz);
+}
+
 void main(void)
 {
 
@@ -108,32 +120,40 @@ void main(void)
 	// Ray starting position
 	vec3 ray = pixelPos;
 	vec3 rayDirection = normalize(pixelPos - camPos);
-	const int MAX_MARCHING_STEPS = 10;
-	const float MAX_DISTANCE = 2.0;
+	const int MAX_MARCHING_STEPS = 100;
+	const float MAX_DISTANCE = 70.0;
 
 	float stepSize = MAX_DISTANCE / MAX_MARCHING_STEPS;
 
 	vec3 v = vec3(0.0); 
+	// for(int i = 0; i < MAX_MARCHING_STEPS; i++){
+
+	// 	float dist = sceneSDF(ray);
+
+	// 	if(dist < EPSILON){ // Hit surface
+	// 		normal = estimateNormal(ray);
+
+	// 		float diffuse = max(dot(normal, light), 0.0);
+	// 		float ambient = 0.004;
+	// 		vec3 R = reflect(-light, normal);
+	// 		vec3 V = normalize(camPos - ray); // View direction
+	// 		float specular = pow(max(dot(R, V), 0), 5);
+	// 		float specular2 = pow(max(dot(R, V), 0), 100);
+	// 		v.r +=  5.7 * (ambient +  0.01 * diffuse + 0.01 * specular + 0.1 * specular2);
+	// 		v.y += 5.0 * (ray.y / 100.0);
+	// 	}
+		
+	// 	ray += dist * rayDirection;
+	// }
+
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
-		float dist = sceneSDF(ray);
-
-		if(dist < EPSILON){ // Hit surface
-			normal = estimateNormal(ray);
-
-			float diffuse = max(dot(normal, light), 0.0);
-			float ambient = 0.004;
-			vec3 R = reflect(-light, normal);
-			vec3 V = normalize(camPos - ray); // View direction
-			float specular = pow(max(dot(R, V), 0), 5);
-			float specular2 = pow(max(dot(R, V), 0), 100);
-			v.r +=  5.7 * (ambient +  0.01 * diffuse + 0.01 * specular + 0.1 * specular2);
-			v.y += 5.0 * (ray.y / 100.0);
-		}
 		
-		ray += dist * rayDirection;
+		ray += stepSize * rayDirection;
+		v += readVolume(ray.x, ray.y, ray.z).xyz;
+		
+		if(length(v) > 0) return;
 	}
-
 
 
 	//vec3 mixColor = mix(v.xyz, voxel.xyz, 0.5);
@@ -142,7 +162,7 @@ void main(void)
 	// if(depth - nearClip > volume.a){
 	// 	mixColor += volume.xyz;
 	// }
-	
+
 	
 	
 	outColor = vec4(v, 1.0);

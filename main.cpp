@@ -62,30 +62,32 @@ int main()
 		post_shader.updateCommonUniforms(rotator, W, H, time, glm::vec3(0));
 		quad.draw();
 
-
+		
 		// Change Volume Data
 		//volume.writeData(10,10,10, glm::vec4(0,1,0,1));
 		
 		for(int i = 0; i < 10; i++){
 			for(int j = 0; j < 10; j++){
 				for(int k = 0; k < 10; k++){
-					volume.drawData(i, j, k, glm::vec4(1,0,0,1));
+					volume.drawData(i, j, k, glm::vec4(0,0,0,1));
 				}
 			}
 		}
 
-		volume.drawData(0, 8, 0, glm::vec4(0,0,1,1));
-		volume.drawData(0, 5, 0, glm::vec4(1,1,1,1));
-		volume.drawData(0, 0, 0, glm::vec4(0,0,1,1));
-		volume.drawData(0, 0, 6, glm::vec4(0,0,1,1));
-		volume.drawData(0, 5, 5, glm::vec4(0,1,0,1));
-		volume.drawData(1, 2, 3, glm::vec4(0.1,0.2,0.3,1));
-		volume.drawData(1, 2, 2, glm::vec4(0.3,0.2,0.1,1));
+		volume.drawData(0, 0, 0, glm::vec4(0.0,0,1,1));
+		volume.drawData(9, 0, 0, glm::vec4(0.3,0,1,1));
+		volume.drawData(0, 0, 9, glm::vec4(0.6,0,1,1));
+		volume.drawData(9, 0, 9, glm::vec4(0.9,0,1,1));
+
+		volume.drawData(0, 9, 9, glm::vec4(0.0,1,0,1));
+		volume.drawData(9, 9, 9, glm::vec4(0.3,1,0,1));
+		volume.drawData(0, 9, 0, glm::vec4(0.6,1,0,1));
+		volume.drawData(9, 9, 0, glm::vec4(0.9,1,0,1));
+
 		
 		glm::vec4 pixel = volume.readData(0, 0, 1);
 		std::cout << "r: " << pixel.r << "g: " << pixel.g << "b: " << pixel.b << std::endl;
 		
-	
 		// Ray marcher
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		screen_shader();
@@ -97,6 +99,14 @@ int main()
 		glUniform1i(screenLoc, 0);
 		glActiveTexture(GL_TEXTURE0);
 		volume.bindTexture();
+		
+		// Clamping
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+		// Interpolation
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		quad.draw();
 
 
