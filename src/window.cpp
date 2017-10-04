@@ -36,19 +36,28 @@ Window::Window(GLFWwindow* &window, int W, int H) : width(W), height(H)
     glDepthFunc(GL_LESS);
 }
 
-void Window::initFrame()
+void Window::init()
 {
-    glViewport(0, 0, width, height);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // We're not using stencil buffer now
-    glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glCullFace(GL_BACK);
+    // Clamping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    glEnable(GL_BLEND);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
+	// Interpolation
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glEnable(GL_TEXTURE_2D);
+	// Polygons
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	// Initialize Window
+	glViewport(0, 0, width, height);
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glCullFace(GL_BACK);
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_2D);
 }

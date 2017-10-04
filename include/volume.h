@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include "glm/glm.hpp"
@@ -13,6 +15,7 @@ public:
     void bindTexture();
     void bindBuffer();
     void drawData(const int &x, const int &y, const int &z, const glm::vec4 &v);
+    void loadTestData();
     glm::vec4 readData(const int &x, const int &y, const int &z) const;
     glm::vec3 getResolution() const;
 

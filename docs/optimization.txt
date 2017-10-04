@@ -8,6 +8,11 @@ Framebuffer should take volumes > 100^3
 Transfer function
 GUI
 Bounding Cube
+Clean main
+
+
+
+
 
 Finished
 =====================
