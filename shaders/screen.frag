@@ -62,13 +62,15 @@ float sceneSDF(vec3 p) {
 }
 
 
-vec3 estimateNormal(vec3 p) {
+vec3 estimateNormalSDF(vec3 p) {
     return normalize(vec3(
         sceneSDF(vec3(p.x + EPSILON, p.y, p.z)) - sceneSDF(vec3(p.x - EPSILON, p.y, p.z)),
         sceneSDF(vec3(p.x, p.y + EPSILON, p.z)) - sceneSDF(vec3(p.x, p.y - EPSILON, p.z)),
         sceneSDF(vec3(p.x, p.y, p.z  + EPSILON)) - sceneSDF(vec3(p.x, p.y, p.z - EPSILON))
     ));
 }
+
+
 
 vec4 readVolume(int x, int y, int z){
 	vec4 voxel;
@@ -95,6 +97,16 @@ vec4 readVolume(float x, float y, float z){
 
 	return readVolume(ix, iy, iz);
 }
+
+vec3 estimateNormal(vec3 p) {
+    return normalize(vec3(
+        readVolume(p.x + EPSILON, p.y, p.z).a - readVolume(p.x - EPSILON, p.y, p.z).a,
+        readVolume(p.x, p.y + EPSILON, p.z).a - readVolume(p.x, p.y - EPSILON, p.z).a,
+        readVolume(p.x, p.y, p.z  + EPSILON).a - readVolume(p.x, p.y, p.z - EPSILON).a
+    ));
+}
+
+
 
 bool insideUnitCube(vec3 p){
 	if(
@@ -131,8 +143,8 @@ void main(void)
 	float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
 	
 	// Pixel position
-	float randomStart = 0.01 * rand(vec2(x, y));
-	randomStart = 0;
+	float randomStart = 0.1 * rand(vec2(x, y));
+	//randomStart = 0;
 	vec3 pixelPos = camPos + camDirection * ( nearClip + randomStart) + x * right + y * screenRatio * up;
 
 	// Ray starting position
@@ -149,7 +161,7 @@ void main(void)
 	// 	float dist = sceneSDF(ray);
 
 	// 	if(dist < EPSILON){ // Hit surface
-	// 		normal = estimateNormal(ray);
+	// 		normal = estimateNormalSDF(ray);
 
 	// 		float diffuse = max(dot(normal, light), 0.0);
 	// 		float ambient = 0.004;
@@ -168,11 +180,15 @@ void main(void)
 
 		ray += stepSize * rayDirection;
 		
-		if(length(v) > 0) return;
+		if(length(v.xyz) > 0.0) return;
 		if(intersect && !insideUnitCube(ray)) return;
 
 		if(intersect){
-			v += readVolume(ray.x, ray.y, ray.z).xyz;
+			normal = estimateNormal(ray);
+			vec4 data = readVolume(ray.x, ray.y, ray.z);
+			float diffuse = max(dot(normal, light), 0.0);
+			v =  data.xyz * data.a;
+
 		}else{
 			intersect = insideUnitCube(ray);
 		}

@@ -145,6 +145,7 @@ GLuint ShaderProgram::compile(GLuint type, GLchar const *source) {
 	return shader;
 }
 
+
 void ShaderProgram::updateCommonUniforms(MouseRotator rotator, float width, float height, float time) {
 	// Uniforms
 	GLint MV_Loc, P_Loc, camPos_Loc, time_Loc, resolution_Loc = -1;

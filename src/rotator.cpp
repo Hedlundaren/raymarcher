@@ -6,14 +6,14 @@ void KeyTranslator::init(GLFWwindow *window) {
 	lastTime = glfwGetTime();
 };
 
+
 void KeyTranslator::poll(GLFWwindow *window) {
 
 	double currentTime, elapsedTime;
-
+	
 	currentTime = glfwGetTime();
 	elapsedTime = currentTime - lastTime;
 	lastTime = currentTime;
-
 	if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
 		horizontal += elapsedTime*5.0; //Move right with speed 5*dt
 	}
@@ -45,6 +45,13 @@ void MouseRotator::init(GLFWwindow *window) {
 	lastRight = GL_FALSE;
 }
 
+// float scroll_zoom;
+// void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+// {
+// 	scroll_zoom += yoffset/4.0;
+// }
+
+
 void MouseRotator::poll(GLFWwindow *window) {
 
 	double currentX;
@@ -66,6 +73,10 @@ void MouseRotator::poll(GLFWwindow *window) {
 	alt = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
 	alt = true;
 
+	// Scroll
+	// glfwSetScrollCallback(window, scroll_callback);
+	// zoom = scroll_zoom;
+	
 	glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
 	if (alt || rotStarted) {

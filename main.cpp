@@ -1,5 +1,6 @@
 // External includes
 #include <iostream>
+#include <ctime>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
@@ -67,42 +68,70 @@ int main()
 	glEnable(GL_TEXTURE_2D);
 
 	// Volume data
-	Volume volume(20, 20, 20);
+	Volume volume(100, 100, 100);
+	// Volume data
+	// volume.bindBuffer();
+	// glClear(GL_COLOR_BUFFER_BIT); 
+
+	
+	const char *title = "Loading data...";
+	glfwSetWindowTitle(window, title);
+	float TOTAL_ITERATIONS = volume.getResolution().x * volume.getResolution().y;
+	
+	volume.bindTexture();
+	glActiveTexture(GL_TEXTURE0);
+	volume.bindTexture();
+	for(int i = 0; i < volume.getResolution().x; i++){
+		for(int j = 0; j < volume.getResolution().y; j++){
+			for(int k = 0; k < volume.getResolution().z; k++){
+				volume.drawData(i, j, k, glm::vec4(0,0,0,0));
+				
+				float v1 = rand() % 100;
+				if(v1 > 0){
+					volume.drawData(i, j, k, glm::vec4(v1/100,0,0,0.6));
+				}
+
+				
+				glm::vec3 pos = glm::vec3(i,j,k);
+				glm::vec3 middle = glm::vec3(50.0);
+				if(length(middle - pos) < 30.0){
+					volume.drawData(i, j, k, glm::vec4(0,1,0,1));
+				}
+
+				if(abs(middle.x - pos.x) > middle.x * 0.9 || 
+					abs(middle.y - pos.y) > middle.y * 0.9 || 
+					abs(middle.z - pos.z) > middle.z * 0.9){
+					volume.drawData(i, j, k, glm::vec4(0,0,1,1));
+				}
+			}
+
+			float percentage = 100.0 * (j + volume.getResolution().y * i) / TOTAL_ITERATIONS;
+			std::cout << (percentage) <<  "% \r";
+		}
+	}
+	std::cout << "Loading complete." << std::endl;
+	
+	volume.drawData(0, 0, 0, glm::vec4(0.0,0,1,1));
+	volume.drawData(99, 0, 0, glm::vec4(0.3,0,1,1));
+	volume.drawData(0, 0, 99, glm::vec4(0.6,0,1,1));
+	volume.drawData(99, 0, 99, glm::vec4(0.9,0,1,1));
+	
+	volume.drawData(0, 99, 99, glm::vec4(0.0,1,0,1));
+	volume.drawData(99, 99, 99, glm::vec4(0.3,1,0,1));
+	volume.drawData(0, 99, 0, glm::vec4(0.6,1,0,1));
+	volume.drawData(99, 99, 0, glm::vec4(0.9,1,0,1));
+
+	volume.drawData(50, 50, 50, glm::vec4(1,1,1,1));
+	
+	clock_t current_ticks, delta_ticks;
+	clock_t fps = 0;
 	
 	do
 	{
+		current_ticks = clock();
 		time += 0.1f;
 		rotator.poll(window);
 
-		// Volume data
-		volume.bindBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-		
-		for(int i = 0; i < volume.getResolution().x; i++){
-			for(int j = 0; j < volume.getResolution().y; j++){
-				for(int k = 0; k < volume.getResolution().z; k++){
-					volume.drawData(i, j, k, glm::vec4(0,0,0,1));
-					
-					float v1 = rand() % 100;
-					if(v1 < 30){
-						volume.drawData(i, j, k, glm::vec4(v1/100,0,0,1));
-					}
-				}
-			}
-		}
-		volume.drawData(0, 0, 0, glm::vec4(0.0,0,1,1));
-		volume.drawData(19, 0, 0, glm::vec4(0.3,0,1,1));
-		volume.drawData(0, 0, 19, glm::vec4(0.6,0,1,1));
-		volume.drawData(19, 0, 19, glm::vec4(0.9,0,1,1));
-	
-		volume.drawData(0, 19, 19, glm::vec4(0.0,1,0,1));
-		volume.drawData(19, 19, 19, glm::vec4(0.3,1,0,1));
-		volume.drawData(0, 19, 0, glm::vec4(0.6,1,0,1));
-		volume.drawData(19, 19, 0, glm::vec4(0.9,1,0,1));
-	
-		volume.drawData(10, 10, 10, glm::vec4(1,1,1,1));
-		
-		
 		// Ray marcher
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
@@ -120,6 +149,13 @@ int main()
 		
 		quad.draw();
 
+
+		delta_ticks = clock() - current_ticks; //the time, in ms, that took to render the scene
+		
+		fps = CLOCKS_PER_SEC / delta_ticks;
+		std::string test = "Marching time " + std::to_string(fps);
+		const char *title = test.c_str();
+		glfwSetWindowTitle(window, title);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
