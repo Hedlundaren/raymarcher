@@ -163,7 +163,7 @@ void ShaderProgram::updateCommonUniforms(MouseRotator rotator, float width, floa
 	
 	glm::mat4 VRotX = glm::rotate(M, (-rotator.phi), glm::vec3(0.0f, 1.0f, 0.0f)); //Rotation about y-axis
 	glm::mat4 VRotY = glm::rotate(M, (rotator.theta), glm::vec3(1.0f, 0.0f, 0.0f)); //Rotation about x-axis
-	glm::vec4 camPos = glm::vec4(rotator.transX, 0.0f, -3.0f + rotator.zoom, 1.0f);
+	glm::vec4 camPos = glm::vec4(rotator.transX, 0.0f, -10.0f + rotator.zoom, 1.0f);
 	//glm::mat4 tests = glm::translate(M, glm::vec3(camPos) + glm::vec3(rotator.transX, rotator.transX, 0.0));
 	camPos = VRotX * VRotY * camPos;
 	glm::vec3 scene_center(0.0f, 0.0f, 0.0f);
@@ -182,4 +182,9 @@ void ShaderProgram::updateCommonUniforms(MouseRotator rotator, float width, floa
 	glUniform3fv(clear_color_Loc, 1, &clear_color[0]);
 	glUniform2fv(resolution_Loc, 1, &resolution[0]);
 
+
+	// 3D texture stuff
+	// glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE, volume->width(), volume->height(), volume->depth(), 0, GL_LUMINANCE, GL_FLOAT, density);
+	// GLint gSampler = glGetUniformLocation(*this, "volume");
+	// glUniform1i(gSampler, 0);
 }

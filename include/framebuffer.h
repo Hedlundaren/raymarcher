@@ -10,6 +10,7 @@ class Framebuffer
 public:
 	Framebuffer();
 	Framebuffer(const int w, const int h);
+	void create(const int &w, const int &h);
 
 	~Framebuffer();
 
@@ -23,6 +24,6 @@ private:
 	GLuint framebuffer;
 	GLuint textureColorbuffer;
 	void create_framebuffer();
-	const int width;
-	const int height;
+	int width;
+	int height;
 };

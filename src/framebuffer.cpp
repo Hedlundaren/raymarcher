@@ -1,9 +1,8 @@
 #include "framebuffer.h"
 
 
-Framebuffer::Framebuffer() : width(2000), height(1000)
+Framebuffer::Framebuffer()
 {
-	create_framebuffer();
 }
 
 Framebuffer::Framebuffer(const int w, const int h) : width(w), height(h)
@@ -15,6 +14,12 @@ Framebuffer::Framebuffer(const int w, const int h) : width(w), height(h)
 Framebuffer::~Framebuffer()
 {
 	glDeleteFramebuffers(1, &framebuffer);
+}
+
+void Framebuffer::create(const int &w, const int &h){
+	width = w;
+	height = h;
+	create_framebuffer();
 }
 
 void Framebuffer::bindTexture() {
@@ -58,7 +63,7 @@ GLuint Framebuffer::generateAttachmentTexture(GLboolean depth, GLboolean stencil
 	// What enum to use?
 	GLenum attachment_type;
 	if (!depth && !stencil)
-		attachment_type = GL_RGB;
+		attachment_type = GL_RGBA;
 	else if (depth && !stencil)
 		attachment_type = GL_DEPTH_COMPONENT;
 	else if (!depth && stencil)
