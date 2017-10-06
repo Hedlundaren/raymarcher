@@ -7,13 +7,11 @@ Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
 Framebuffer should take volumes > 100^3
 Transfer function
 GUI
-Bounding Cube
 Clean main
-
-
-
 
 
 Finished
 =====================
 Remove unnecessary uniforms
+random start depends on stepsize
+Bounding Cube

@@ -40,4 +40,5 @@ void main()
 	shade = 0.7*diffuse + 0.0*specular + 0.7*ambient;
 	vec3 color = vec3(0.8, 0.6, 0.7);
 	outColor = vec4(shade * color + 0.6 * clear_color, gl_FragCoord.z);
+	outColor = vec4(1.0);
 } 

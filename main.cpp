@@ -11,6 +11,7 @@
 #include "framebuffer.h"
 #include "quad.h"
 #include "sphere.h"
+#include "boundingcube.h"
 #include "volume.h"
 
 #define W 1920/2
@@ -29,13 +30,16 @@ int main()
 	// Define meshes
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
+	BoundingCube cube = BoundingCube();
 
 	// Define screen
-	GLint screenLoc; 
-	Framebuffer screen = Framebuffer(W, H);
+	GLint locator; 
+	Framebuffer screenBuffer = Framebuffer(W, H);
+	Framebuffer cubeBuffer = Framebuffer(W, H);
 
 	// Define shaders
 	ShaderProgram phong_shader("shaders/phong.vert", "", "", "", "shaders/phong.frag");
+	ShaderProgram cube_shader("shaders/cube.vert", "", "", "", "shaders/cube.frag");
 	ShaderProgram screen_shader("shaders/screen.vert", "", "", "", "shaders/screen.frag");
 	ShaderProgram post_shader("shaders/screen.vert", "", "", "", "shaders/post.frag");
 
@@ -44,7 +48,7 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(100, 100, 100);
+	Volume volume(9, 9, 9);
 
 	const char *title = "Loading data...";
 	glfwSetWindowTitle(window, title);
@@ -56,20 +60,31 @@ int main()
 		rotator.poll(window);
 		clock.start();
 
+		// Bounding box
+		cubeBuffer.bindBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		cube_shader();
+		cube_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		cube.draw();
+		
 		// Ray marcher
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		screen_shader();
 		glViewport(0,0,W,H);
 		screen_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
-		screenLoc = glGetUniformLocation(screen_shader, "volumeTexture");
-		glUniform1i(screenLoc, 0);
+		locator = glGetUniformLocation(screen_shader, "volumeTexture");
+		glUniform1i(locator, 0);
 		glActiveTexture(GL_TEXTURE0);
 		volume.bindTexture();
-		GLint volumeResolution_Loc = glGetUniformLocation(screen_shader, "volumeResolution");
-		glUniform3fv(volumeResolution_Loc, 1, &volume.getResolution()[0]);
-		
+		locator = glGetUniformLocation(screen_shader, "cubeTexture");
+		glUniform1i(locator, 1);
+		glActiveTexture(GL_TEXTURE1);
+		cubeBuffer.bindTexture();
+		locator = glGetUniformLocation(screen_shader, "volumeResolution");
+		glUniform3fv(locator, 1, &volume.getResolution()[0]);
 		quad.draw();
+
 
 		clock.stop();
 

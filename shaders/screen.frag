@@ -6,6 +6,7 @@ in vec2 texCoord;
 out vec4 outColor;
 
 uniform sampler2D volumeTexture;
+uniform sampler2D cubeTexture;
 uniform vec2 resolution;
 uniform vec3 volumeResolution;
 uniform float time;
@@ -19,7 +20,8 @@ const float borderUp = 		cubeSize;
 const float borderNear = 	0.0;
 const float borderFar = 	cubeSize;
 
-const float EPSILON = 0.1;
+const float EPSILON = 0.01;
+#define PI 3.14159265359
 
 float intersectSDF(float distA, float distB) {
     return max(distA, distB);
@@ -70,7 +72,22 @@ vec3 estimateNormalSDF(vec3 p) {
     ));
 }
 
+bool insideUnitCube(vec3 p){
+	if(
+		p.x < borderLeft ||
+		p.x > borderRight ||
+		p.y < borderDown ||
+		p.y > borderUp ||
+		p.z < borderNear ||
+		p.z > borderFar
+	){
+		return false;
+	}else{
+		return true;
+	}
 
+	return false;
+}
 
 vec4 readVolume(int x, int y, int z){
 	vec4 voxel;
@@ -86,10 +103,22 @@ vec4 readVolume(int x, int y, int z){
 
 vec4 readVolume(float x, float y, float z){
 
-	// center volume
+
+
+	// Transformations of data
+	// Works as vertext shader
+	//y += 0.3*sin(time/4.0 + x);
+	
+
+	if(!insideUnitCube(vec3(x,y,z))) return vec3(0);
+
+
+	// Read at correct place in volume
 	x *= volumeResolution.x;
 	y *= volumeResolution.y;
 	z *= volumeResolution.z;
+
+
 
 	int ix = int(floor(x));
 	int iy = int(floor(y));
@@ -108,27 +137,14 @@ vec3 estimateNormal(vec3 p) {
 
 
 
-bool insideUnitCube(vec3 p){
-	if(
-		p.x < borderLeft ||
-		p.x > borderRight ||
-		p.y < borderDown ||
-		p.y > borderUp ||
-		p.z < borderNear ||
-		p.z > borderFar
-	){
-		return false;
-	}else{
-		return true;
-	}
-}
+
 
 void main(void)
 {
 
 	// ====== CPU =========
 	float screenRatio = resolution.y / resolution.x; 
-	float fov = 50.0 * 3.1415 / 180.0;
+	float fov = 50.0 * PI / 180.0;
 	float nearClip = 2.0/tan(fov/2.0);
 
 	vec3 normal = vec3(0);
@@ -143,19 +159,21 @@ void main(void)
 	float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
 	
 	// Pixel position
-	float randomStart = 0.1 * rand(vec2(x, y));
+	const int MAX_MARCHING_STEPS = 100;
+	const float MAX_DISTANCE = 5.0;
+	float stepSize = MAX_DISTANCE / MAX_MARCHING_STEPS;
+	float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
 	//randomStart = 0;
 	vec3 pixelPos = camPos + camDirection * ( nearClip + randomStart) + x * right + y * screenRatio * up;
 
 	// Ray starting position
 	vec3 ray = pixelPos;
 	vec3 rayDirection = normalize(pixelPos - camPos);
-	const int MAX_MARCHING_STEPS = 100;
-	const float MAX_DISTANCE = 5.0;
-	float stepSize = MAX_DISTANCE / MAX_MARCHING_STEPS;
+	
 
-	vec3 v = vec3(0.0); 
-
+	vec4 v = vec4(0,0,0,1); 
+	//v = mix(v, texture(cubeTexture, texCoord).xyz, 0.15);
+	v = texture(cubeTexture, texCoord);
 	// for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 	// 	float dist = sceneSDF(ray);
@@ -175,19 +193,20 @@ void main(void)
 		
 	// 	ray += dist * rayDirection;
 	// }
+
 	bool intersect = false;
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 		ray += stepSize * rayDirection;
 		
-		if(length(v.xyz) > 0.0) return;
-		if(intersect && !insideUnitCube(ray)) return;
+		if(v.a > 1.0) break;
+		if(intersect && !insideUnitCube(ray)) break;
 
 		if(intersect){
 			normal = estimateNormal(ray);
 			vec4 data = readVolume(ray.x, ray.y, ray.z);
 			float diffuse = max(dot(normal, light), 0.0);
-			v =  data.xyz * data.a;
+			v += vec4(data.xyz, 1.0) * data.a;
 
 		}else{
 			intersect = insideUnitCube(ray);
@@ -195,14 +214,16 @@ void main(void)
 	}
 
 
-	//vec3 mixColor = mix(v.xyz, voxel.xyz, 0.5);
+	// //vec3 mixColor = mix(v.xyz, voxel.xyz, 0.5);
 
-	//float depth = length(ray - pixelPos);
-	// if(depth - nearClip > volume.a){
-	// 	mixColor += volume.xyz;
-	// }
+	// //float depth = length(ray - pixelPos);
+	// // if(depth - nearClip > volume.a){
+	// // 	mixColor += volume.xyz;
+	// // }
 
+	// // if(intersect){
+	// // 	v = vec3(0.5);
+	// // }
+	outColor = v;
 	
-	
-	outColor = vec4(v, 1.0);
 }
