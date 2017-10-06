@@ -15,7 +15,6 @@ class ColorCube
     void create_cube();
     void draw();
 
-  protected:
   private:
     std::vector<glm::vec3> vertices;
     std::vector<unsigned int> indices;

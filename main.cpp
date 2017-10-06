@@ -12,6 +12,7 @@
 #include "quad.h"
 #include "sphere.h"
 #include "boundingcube.h"
+#include "colorcube.h"
 #include "volume.h"
 
 #define W 1920/2
@@ -30,16 +31,20 @@ int main()
 	// Define meshes
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
-	BoundingCube cube = BoundingCube();
+	BoundingCube boundingCube;
+	ColorCube colorCube;
 
 	// Define screen
 	GLint locator; 
 	Framebuffer screenBuffer = Framebuffer(W, H);
 	Framebuffer cubeBuffer = Framebuffer(W, H);
+	Framebuffer rayEnterBuffer = Framebuffer(W, H);
+	Framebuffer rayExitBuffer = Framebuffer(W, H);
 
 	// Define shaders
 	ShaderProgram phong_shader("shaders/phong.vert", "", "", "", "shaders/phong.frag");
 	ShaderProgram cube_shader("shaders/cube.vert", "", "", "", "shaders/cube.frag");
+	ShaderProgram color_position_shader("shaders/color_position.vert", "", "", "", "shaders/color_position.frag");
 	ShaderProgram screen_shader("shaders/screen.vert", "", "", "", "shaders/screen.frag");
 	ShaderProgram post_shader("shaders/screen.vert", "", "", "", "shaders/post.frag");
 
@@ -48,7 +53,7 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(9, 9, 9);
+	Volume volume(50, 50, 50);
 
 	const char *title = "Loading data...";
 	glfwSetWindowTitle(window, title);
@@ -59,16 +64,35 @@ int main()
 	{
 		rotator.poll(window);
 		clock.start();
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+			
+		glFrontFace(GL_CW); // front face
+
+		rayEnterBuffer.bindBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		color_position_shader();
+		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		colorCube.draw();
+
+		glFrontFace(GL_CCW); // back face
+
+		rayExitBuffer.bindBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		color_position_shader();
+		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		colorCube.draw();
 
 		// Bounding box
 		cubeBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		cube_shader();
 		cube_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
-		cube.draw();
-		
+		boundingCube.draw();
+
 		// Ray marcher
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_CULL_FACE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		screen_shader();
 		glViewport(0,0,W,H);
@@ -81,6 +105,14 @@ int main()
 		glUniform1i(locator, 1);
 		glActiveTexture(GL_TEXTURE1);
 		cubeBuffer.bindTexture();
+		locator = glGetUniformLocation(screen_shader, "rayEnterTexture");
+		glUniform1i(locator, 2);
+		glActiveTexture(GL_TEXTURE2);
+		rayEnterBuffer.bindTexture();
+		locator = glGetUniformLocation(screen_shader, "rayExitTexture");
+		glUniform1i(locator, 3);
+		glActiveTexture(GL_TEXTURE3);
+		rayExitBuffer.bindTexture();
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
 		quad.draw();

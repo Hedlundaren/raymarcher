@@ -51,7 +51,7 @@ void Volume::loadTestData(){
 				
 				float v1 = rand() % 100;
 				if(v1 > 0){
-					this->drawData(i, j, k, glm::vec4(v1/100,0,0,0.14));
+					this->drawData(i, j, k, glm::vec4(v1/100,0,0,0.004));
 				}
 
 				
@@ -64,7 +64,7 @@ void Volume::loadTestData(){
 				if(abs(middle.x - pos.x) > middle.x * 0.9 || 
 					abs(middle.y - pos.y) > middle.y * 0.9 || 
 					abs(middle.z - pos.z) > middle.z * 0.9){
-					this->drawData(i, j, k, glm::vec4(0,0,1.0,0.05));
+					this->drawData(i, j, k, glm::vec4(0,0,1.0,0.005));
 				}
 			}
 

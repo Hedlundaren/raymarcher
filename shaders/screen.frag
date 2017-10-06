@@ -7,6 +7,8 @@ out vec4 outColor;
 
 uniform sampler2D volumeTexture;
 uniform sampler2D cubeTexture;
+uniform sampler2D rayEnterTexture;
+uniform sampler2D rayExitTexture;
 uniform vec2 resolution;
 uniform vec3 volumeResolution;
 uniform float time;
@@ -159,21 +161,24 @@ void main(void)
 	float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
 	
 	// Pixel position
-	const int MAX_MARCHING_STEPS = 100;
-	const float MAX_DISTANCE = 5.0;
-	float stepSize = MAX_DISTANCE / MAX_MARCHING_STEPS;
+	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
+	vec3 exitPos = texture(rayExitTexture, texCoord).xyz;
+	float travelDistance = length(exitPos-enterPos);
+	float stepSize = 0.005;
+	const int MAX_MARCHING_STEPS = int(travelDistance / stepSize);
 	float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
 	//randomStart = 0;
 	vec3 pixelPos = camPos + camDirection * ( nearClip + randomStart) + x * right + y * screenRatio * up;
 
 	// Ray starting position
-	vec3 ray = pixelPos;
+	vec3 ray = enterPos;
 	vec3 rayDirection = normalize(pixelPos - camPos);
 	
 
 	vec4 v = vec4(0,0,0,1); 
-	//v = mix(v, texture(cubeTexture, texCoord).xyz, 0.15);
 	v = texture(cubeTexture, texCoord);
+
+	// For mathematical visualizations
 	// for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 	// 	float dist = sceneSDF(ray);
@@ -195,35 +200,20 @@ void main(void)
 	// }
 
 	bool intersect = false;
+	
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 		ray += stepSize * rayDirection;
 		
 		if(v.a > 1.0) break;
-		if(intersect && !insideUnitCube(ray)) break;
 
-		if(intersect){
-			normal = estimateNormal(ray);
-			vec4 data = readVolume(ray.x, ray.y, ray.z);
-			float diffuse = max(dot(normal, light), 0.0);
-			v += vec4(data.xyz, 1.0) * data.a;
+		normal = estimateNormal(ray);
+		vec4 data = readVolume(ray.x, ray.y, ray.z);
+		float diffuse = max(dot(normal, light), 0.0);
+		v += vec4(data.xyz, 1.0) * data.a;
 
-		}else{
-			intersect = insideUnitCube(ray);
-		}
 	}
 
-
-	// //vec3 mixColor = mix(v.xyz, voxel.xyz, 0.5);
-
-	// //float depth = length(ray - pixelPos);
-	// // if(depth - nearClip > volume.a){
-	// // 	mixColor += volume.xyz;
-	// // }
-
-	// // if(intersect){
-	// // 	v = vec3(0.5);
-	// // }
 	outColor = v;
 	
 }

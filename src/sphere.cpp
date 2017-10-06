@@ -16,7 +16,7 @@ Sphere::~Sphere()
 
 }
 
-glm::mat4 rotationMatrix(glm::vec3 axis, float angle)
+glm::mat4 Sphere::rotationMatrix(glm::vec3 axis, float angle)
 {
 	axis = normalize(axis);
 	float s = sin(angle);

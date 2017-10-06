@@ -21,6 +21,7 @@ public:
 	void draw();
 
 protected:
+	glm::mat4 rotationMatrix(glm::vec3 axis, float angle);
 	void make_face(glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 face_color, glm::vec3 center, float phi, float theta);
 
 private:

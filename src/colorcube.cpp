@@ -1,7 +1,7 @@
 #include "colorcube.h"
 
 
-ColorCube::ColorCube() : res_phi(10), res_theta(10), radius(1.0f)
+ColorCube::ColorCube()
 {
 	create_cube();
 }
@@ -11,24 +11,13 @@ ColorCube::~ColorCube()
 
 }
 
-glm::mat4 rotationMatrix(glm::vec3 axis, float angle)
-{
-	axis = normalize(axis);
-	float s = sin(angle);
-	float c = cos(angle);
-	float oc = 1.0 - c;
-
-	return glm::mat4(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
-		oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
-		oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
-		0.0, 0.0, 0.0, 1.0);
-}
 
 void ColorCube::create_cube() {
 
 
-	glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
-
+	glm::vec3 center = glm::vec3(0.5f, 0.5f, 0.5f);
+    glm::vec3 normal;
+    
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -41,25 +30,85 @@ void ColorCube::create_cube() {
     glm::vec3 v6 = glm::vec3(1,1,1);
     glm::vec3 v7 = glm::vec3(0,1,1);
 
-    vertices.push_back(a);
-	vertices.push_back(b);
-	vertices.push_back(c);
-	vertices.push_back(c);
+    vertices.push_back(v0);
+    vertices.push_back(v1);
+    vertices.push_back(v2);
+    vertices.push_back(v3);
+    vertices.push_back(v4);
+    vertices.push_back(v5);
+    vertices.push_back(v6);
+    vertices.push_back(v7);
 
+    normal = normalize(v0 - center);
+	normals.push_back(normal);
+    normal = normalize(v1 - center);
+	normals.push_back(normal);
+    normal = normalize(v2 - center);
+	normals.push_back(normal);
+    normal = normalize(v3 - center);
+	normals.push_back(normal);
+    normal = normalize(v4 - center);
+	normals.push_back(normal);
+    normal = normalize(v5 - center);
+	normals.push_back(normal);
+    normal = normalize(v6 - center);
+	normals.push_back(normal);
+    normal = normalize(v7 - center);
+	normals.push_back(normal);
+	
+    // f0
+	indices.push_back(0);
+	indices.push_back(1);
+	indices.push_back(2);
 
-	indices.push_back(vertices.size() - 4);
-	indices.push_back(vertices.size() - 3);
-	indices.push_back(vertices.size() - 2);
-	indices.push_back(vertices.size() - 1);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(0);
+    
+    // f1
+	indices.push_back(0);
+	indices.push_back(4);
+	indices.push_back(5);
 
-	normal = normalize(a - center);
-	normals.push_back(normal);
-	normal = normalize(b - center);
-	normals.push_back(normal);
-	normal = normalize(c - center);
-    normals.push_back(normal);
-    normal = normalize(d - center);
-	normals.push_back(normal);
+    indices.push_back(5);
+	indices.push_back(1);
+	indices.push_back(0);
+
+     // f2
+	indices.push_back(1);
+	indices.push_back(5);
+	indices.push_back(6);
+
+    indices.push_back(6);
+    indices.push_back(2);
+    indices.push_back(1);
+    
+     // f3
+	indices.push_back(2);
+	indices.push_back(6);
+	indices.push_back(7);
+
+    indices.push_back(7);
+    indices.push_back(3);
+    indices.push_back(2);
+    
+     // f4
+	indices.push_back(0);
+	indices.push_back(3);
+	indices.push_back(7);
+
+    indices.push_back(7);
+    indices.push_back(4);
+    indices.push_back(0);
+    
+     // f5
+	indices.push_back(4);
+	indices.push_back(7);
+	indices.push_back(6);
+
+    indices.push_back(6);
+    indices.push_back(5);
+    indices.push_back(4);
 
 
 	// Model vertices
@@ -108,8 +157,6 @@ void ColorCube::create_cube() {
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-
 }
 
 void ColorCube::draw() {
@@ -127,6 +174,7 @@ void ColorCube::draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, NBO);
 	glNormalPointer(GL_FLOAT, sizeof(glm::vec3), (void*)0);
 
+    glPointSize(4.0);
 	glDrawElements(
 		GL_TRIANGLES,      // mode
 		indices.size(),    // count
