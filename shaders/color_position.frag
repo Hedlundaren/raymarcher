@@ -12,5 +12,7 @@ uniform float time;
 void main()
 {
 
+
 	outColor = vec4(oldPos, 1.0);
+
 } 

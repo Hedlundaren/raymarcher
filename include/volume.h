@@ -1,6 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
 #include <vector>
 #include "glm/glm.hpp"
 #include "framebuffer.h"
@@ -16,6 +20,7 @@ public:
     void bindBuffer();
     void drawData(const int &x, const int &y, const int &z, const glm::vec4 &v);
     void loadTestData();
+    void loadData(std::string fileName);
     glm::vec4 readData(const int &x, const int &y, const int &z) const;
     glm::vec3 getResolution() const;
 

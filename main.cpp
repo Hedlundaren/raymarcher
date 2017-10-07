@@ -53,12 +53,13 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(50, 50, 50);
+	Volume volume(9, 9, 9);
 
 	const char *title = "Loading data...";
-	glfwSetWindowTitle(window, title);
+	glfwSetWindowTitle(window, title);	
 	volume.bindTexture();
 	volume.loadTestData();
+	volume.loadData("data/brain.sav");
 	
 	do
 	{
@@ -116,7 +117,6 @@ int main()
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
 		quad.draw();
-
 
 		clock.stop();
 

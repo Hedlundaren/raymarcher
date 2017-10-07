@@ -3,3 +3,4 @@
 *.o
 main
 docs/TransferFunctions.pdf
+data/

@@ -172,7 +172,7 @@ void main(void)
 
 	// Ray starting position
 	vec3 ray = enterPos;
-	vec3 rayDirection = normalize(pixelPos - camPos);
+	vec3 rayDirection = normalize(exitPos - enterPos);
 	
 
 	vec4 v = vec4(0,0,0,1); 
@@ -215,5 +215,6 @@ void main(void)
 	}
 
 	outColor = v;
+	outColor = mix(v, texture(rayEnterTexture, texCoord), 0.0);
 	
 }

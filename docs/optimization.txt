@@ -3,11 +3,14 @@ Ideas
 Store unsigned data positions
 Precalculate shader variables
 Rotation with quaternions
-Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
 Framebuffer should take volumes > 100^3
 Transfer function
 GUI
 Clean main
+
+In Progress
+=====================
+Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
 
 
 Finished

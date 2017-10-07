@@ -51,7 +51,7 @@ void Volume::loadTestData(){
 				
 				float v1 = rand() % 100;
 				if(v1 > 0){
-					this->drawData(i, j, k, glm::vec4(v1/100,0,0,0.004));
+					this->drawData(i, j, k, glm::vec4(v1/100,0,0,0.03));
 				}
 
 				
@@ -85,4 +85,38 @@ void Volume::loadTestData(){
 	this->drawData(resolution.x-1, resolution.y-1, 0, glm::vec4(0.9,1,0,1));
 
 	this->drawData(resolution.x/2, resolution.y/2, resolution.z/2, glm::vec4(1,1,1,1));
+}
+
+
+void Volume::loadData(std::string fileName)
+{
+    std::ifstream file;
+    file.open(fileName);
+
+    if (file.is_open())
+    {
+        std::string line;
+
+		int count = 0;
+        while (getline(file, line))
+        {
+            std::stringstream ss;
+            ss << line;
+
+			std::cout << line << std::endl;
+			
+            std::string type;
+			ss >> type;
+			
+
+
+            if (type == "v")
+            {
+             
+			}
+			
+			count++;
+			if(count > 20) break;
+        }
+    }
 }
