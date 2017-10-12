@@ -5,8 +5,7 @@
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-
-#define PI 3.1415926
+#include "codebase.h"
 const glm::vec3 RED = glm::vec3(1.0, 0.0, 0.0);
 
 

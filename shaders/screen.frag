@@ -145,39 +145,42 @@ void main(void)
 {
 
 	// ====== CPU =========
-	float screenRatio = resolution.y / resolution.x; 
-	float fov = 50.0 * PI / 180.0;
-	float nearClip = 2.0/tan(fov/2.0);
-
 	vec3 normal = vec3(0);
 	vec3 light = normalize(vec3 (1, 1, 1));
 
-	// Calculate camera orientation
-	vec3 camDirection = normalize(vec3(0.5)-camPos); // Point camera towards origo
-	vec3 up = vec3(0,1,0);
-	vec3 right = normalize(cross(camDirection, up));
-	up = normalize(cross(right, camDirection));
-	float x = 2.0 * gl_FragCoord.x/resolution.x - 1.0; // x, y => [-1, 1]
-	float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
+	// float screenRatio = resolution.y / resolution.x; 
+	// float fov = 50.0 * PI / 180.0;
+	// float nearClip = 2.0/tan(fov/2.0);
+	// // ===================
+
+	// // Calculate camera orientation
+	// vec3 camDirection = normalize(vec3(0.5)-camPos); // Point camera towards origo
+	// vec3 up = vec3(0,1,0);
+	// vec3 right = normalize(cross(camDirection, up));
+	// up = normalize(cross(right, camDirection));
+	// float x = 2.0 * gl_FragCoord.x/resolution.x - 1.0; // x, y => [-1, 1]
+	// float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
 	
 	// Pixel position
 	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
 	vec3 exitPos = texture(rayExitTexture, texCoord).xyz;
 	float travelDistance = length(exitPos-enterPos);
-	float stepSize = 0.005;
+	float stepSize = 0.01;
 	const int MAX_MARCHING_STEPS = int(travelDistance / stepSize);
-	float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
+	//float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
 	//randomStart = 0;
-	vec3 pixelPos = camPos + camDirection * ( nearClip + randomStart) + x * right + y * screenRatio * up;
+	//vec3 pixelPos = camPos + camDirection * ( nearClip + randomStart) + x * right + y * screenRatio * up;
 
 	// Ray starting position
 	vec3 ray = enterPos;
 	vec3 rayDirection = normalize(exitPos - enterPos);
 	
 
-	vec4 v = vec4(0,0,0,1); 
-	v = texture(cubeTexture, texCoord);
-
+	vec4 v = vec4(0); 
+	//v = texture(cubeTexture, texCoord);
+	vec4 boundingCube =  vec4(0,0,0,1);
+	vec4 boundingCubeColor = vec4(0.5, 0.5, 0.5, 1);
+	 
 	// For mathematical visualizations
 	// for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
@@ -199,7 +202,6 @@ void main(void)
 	// 	ray += dist * rayDirection;
 	// }
 
-	bool intersect = false;
 	
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
@@ -212,9 +214,22 @@ void main(void)
 		float diffuse = max(dot(normal, light), 0.0);
 		v += vec4(data.xyz, 1.0) * data.a;
 
+
+		float d1 = length(texture(cubeTexture, texCoord).xyz - camPos);
+		float d2 = length(ray - camPos);
+		if(texture(cubeTexture, texCoord).a != 0){
+			if(d1 > d2)
+				boundingCube = vec4(1.0 - v.a);
+			else {
+				// if(length(enterPos)!= 0 && texture(cubeTexture, texCoord).a != 0) boundingCube = boundingCubeColor;
+				boundingCube = vec4(1.0);
+				
+			}
+		} 
 	}
 
-	outColor = v;
-	outColor = mix(v, texture(rayEnterTexture, texCoord), 0.0);
+
+	outColor = v;// + boundingCube * boundingCubeColor;
+	// outColor = texture(rayEnterTexture, texCoord);
 	
 }

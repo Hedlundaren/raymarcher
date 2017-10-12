@@ -4,7 +4,7 @@ layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 uv;
 
-out vec3 newPos;
+out vec3 oldPos;
 out vec3 newNormal;
 out vec2 texCoord;
 
@@ -13,10 +13,10 @@ uniform mat4 P;
 
 void main() {
 	
-	newPos = position;
+	vec3 newPos = position - vec3(0.5);
+	oldPos = position;
 	newNormal = normal;
 	texCoord = uv;
-	newPos -= vec3(0.5);
 
     gl_Position = P * MV * vec4(newPos, 1.0f);
 }

@@ -65,6 +65,12 @@ void BoundingCube::draw() {
 	glBindVertexArray(quadVAO);
 	glPointSize(4.0);
 	glLineWidth(4.0);
+
+	// glGet with argument GL_LINE_WIDTH
+	// glGet with argument GL_ALIASED_LINE_WIDTH_RANGE
+	// glGet with argument GL_SMOOTH_LINE_WIDTH_RANGE
+	// glGet with argument GL_SMOOTH_LINE_WIDTH_GRANULARITY
+	// glIsEnabled with argument GL_LINE_SMOOTH
 	glDrawArrays(GL_LINES, 0, 32);
 	glBindVertexArray(0);
 }

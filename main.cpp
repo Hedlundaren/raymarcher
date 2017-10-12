@@ -15,8 +15,9 @@
 #include "colorcube.h"
 #include "volume.h"
 
-#define W 1920/2
-#define H 1080/2
+#define W 1920 / 2
+#define H 1080 / 2
+
 
 int main()
 {
@@ -26,8 +27,7 @@ int main()
 	GLFWwindow *window = nullptr;
 	Window w = Window(window, W, H);
 	w.init();
-	Clock clock = Clock(window);	
-
+	Clock clock = Clock(window);
 	// Define meshes
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
@@ -35,7 +35,7 @@ int main()
 	ColorCube colorCube;
 
 	// Define screen
-	GLint locator; 
+	GLint locator;
 	Framebuffer screenBuffer = Framebuffer(W, H);
 	Framebuffer cubeBuffer = Framebuffer(W, H);
 	Framebuffer rayEnterBuffer = Framebuffer(W, H);
@@ -56,10 +56,11 @@ int main()
 	Volume volume(9, 9, 9);
 
 	const char *title = "Loading data...";
-	glfwSetWindowTitle(window, title);	
+	glfwSetWindowTitle(window, title);
 	volume.bindTexture();
 	volume.loadTestData();
-	volume.loadData("data/brain.sav");
+	// volume.loadDataPVM("data/DTI-B0.pvm");
+	volume.loadDataPVM("data/Bruce.pvm"); 
 	
 	do
 	{
@@ -67,7 +68,7 @@ int main()
 		clock.start();
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-			
+
 		glFrontFace(GL_CW); // front face
 
 		rayEnterBuffer.bindBuffer();
@@ -94,9 +95,9 @@ int main()
 		// Ray marcher
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_CULL_FACE);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		screen_shader();
-		glViewport(0,0,W,H);
+		glViewport(0, 0, W, H);
 		screen_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
 		locator = glGetUniformLocation(screen_shader, "volumeTexture");
 		glUniform1i(locator, 0);
