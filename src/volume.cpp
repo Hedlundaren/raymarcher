@@ -138,10 +138,6 @@ void Volume::loadDataPVM(std::string filePath)
 		std::cout << "Could not read data.\n";
 	}
 
-	float bytes = (float)bytesPerVoxel;
-	float size = dimx * dimy * dimz * bytes;
-
-	swapbytes(chardata, static_cast<unsigned int>(size));
 
 	std::cout << chardata << '\n';
 	std::cout << "dimx: " << dimx << '\n';
@@ -155,36 +151,34 @@ void Volume::loadDataPVM(std::string filePath)
 	std::cout << "courtesy: " << courtesy << '\n';
 	std::cout << "parameter: " << parameter << '\n';
 	std::cout << "comment: " << comment << '\n';
-	std::cout << "chardata: " << chardata << '\n';
 
-	// if (dim == size3_t(0))
-	// {
-	// 	throw DataReaderException("Error: Unable to find dimensions in .pvm file: " + filePath,
-	// 							  IvwContextCustom("PVMVolumeReader"));
-	// }
+	unsigned short* ptr = (unsigned short*)chardata;
+	for (unsigned z = 0; z < dimz; z++)
+	{
+		for (unsigned y = 0; y < dimy; y++)
+		{
+			for (unsigned x = 0; x < dimx; x++)
+			{
 
-	// auto volume = std::make_shared<Volume>();
+				unsigned short voxelData = *ptr;//static_cast<unsigned short>(*chardata);
 
-	// if (format == DataUInt16::get())
-	// {
-	// 	size_t bytes = format->getSize();
-	// 	size_t size = dim.x * dim.y * dim.z * bytes;
-	// 	swapbytes(data, static_cast<unsigned int>(size));
-	// 	// This format does not contain information about data range
-	// 	// so we need to compute it for correct results
-	// 	auto minmax = std::minmax_element(reinterpret_cast<DataUInt16::type *>(data),
-	// 									  reinterpret_cast<DataUInt16::type *>(data + size));
-	// 	volume->dataMap_.dataRange = dvec2(*minmax.first, *minmax.second);
-	// }
 
-	// // Additional information
-	// std::stringstream ss;
+				float value = (float)voxelData / (8.0*65000.0f);
+				int i = (int)((x / (float)dimx) * resolution.x);
+				int j = (int)((y / (float)dimy) * resolution.y);
+				int k = (int)((z / (float)dimz) * resolution.z);
 
-	// if (description)
-	// {
-	// 	ss << description;
-	// 	volume->setMetaData<StringMetaData>("description", ss.str());
-	// }
+				// value --> [0,1]
+				this->drawData(i, j, k, glm::vec4(1, 1, 1, value));
+				// std::cout << "voxelData: " << voxelData << '\n';
+				ptr++;
+			}
+		}
+		float percentage = 100.0 * z / dimz;
+		std::cout << "(percentage)" << "% \r";
+	}
+	std::cout << "Loading complete." << std::endl;
+
 }
 
 void Volume::loadDataSAV(std::string filename)

@@ -1,8 +1,8 @@
 all:  main
 
-CC = g++ -std=c++11
+CC = gcc -g -O0
 INCLUDES = -Iinclude 
-LINKER_FLAGS = -lstdc++ -lXt -lm -lGL -lGLU -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor -lGLEW
+LINKER_FLAGS = -std=c++11 -lstdc++ -lXt -lm -lGL -lGLU -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor -lGLEW
 CFLAGS = $(INCLUDES) $(LINKER_FLAGS)
 DEPS = include/*
 

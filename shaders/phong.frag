@@ -27,7 +27,6 @@ void main()
 	// Diffuse
 	diffuse = dot(normalize(newNormal), light);
 	diffuse = max(0.0, diffuse); // No negative light
-	
 	// Specular
 	vec3 r = reflect(-light, normalize(newNormal));
 	vec3 v = normalize(camPos - newPos); // View direction

@@ -103,16 +103,18 @@ vec4 readVolume(int x, int y, int z){
 	return voxel;
 }
 
+
+
 vec4 readVolume(float x, float y, float z){
 
 
 
 	// Transformations of data
 	// Works as vertext shader
-	//y += 0.3*sin(time/4.0 + x);
+	// y += 0.3*sin(time/4.0 + x);
 	
 
-	if(!insideUnitCube(vec3(x,y,z))) return vec3(0);
+	// if(!insideUnitCube(vec3(x,y,z))) return vec3(0);
 
 
 	// Read at correct place in volume
@@ -165,7 +167,7 @@ void main(void)
 	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
 	vec3 exitPos = texture(rayExitTexture, texCoord).xyz;
 	float travelDistance = length(exitPos-enterPos);
-	float stepSize = 0.01;
+	float stepSize = 0.005;
 	const int MAX_MARCHING_STEPS = int(travelDistance / stepSize);
 	//float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
 	//randomStart = 0;
@@ -212,7 +214,10 @@ void main(void)
 		normal = estimateNormal(ray);
 		vec4 data = readVolume(ray.x, ray.y, ray.z);
 		float diffuse = max(dot(normal, light), 0.0);
-		v += vec4(data.xyz, 1.0) * data.a;
+		
+		if(data.a > 0.05) data.xyz = vec3(1,0,0);
+		v += vec4(diffuse * data.xyz, 1.0) * data.a;
+
 
 
 		float d1 = length(texture(cubeTexture, texCoord).xyz - camPos);
@@ -229,7 +234,7 @@ void main(void)
 	}
 
 
-	outColor = v;// + boundingCube * boundingCubeColor;
+	outColor = v + boundingCube * boundingCubeColor;
 	// outColor = texture(rayEnterTexture, texCoord);
 	
 }

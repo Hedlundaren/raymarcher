@@ -17,16 +17,16 @@
 
 #define W 1920 / 2
 #define H 1080 / 2
-
-
 int main()
 {
+	
 	std::cout << "======== Marching Time =========" << std::endl;
-
 	// Define window
 	GLFWwindow *window = nullptr;
 	Window w = Window(window, W, H);
 	w.init();
+
+	
 	Clock clock = Clock(window);
 	// Define meshes
 	Quad quad = Quad();
@@ -53,12 +53,12 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(9, 9, 9);
+	Volume volume(110, 110, 110);
 
 	const char *title = "Loading data...";
 	glfwSetWindowTitle(window, title);
 	volume.bindTexture();
-	volume.loadTestData();
+	// volume.loadTestData();
 	// volume.loadDataPVM("data/DTI-B0.pvm");
 	volume.loadDataPVM("data/Bruce.pvm"); 
 	
@@ -84,7 +84,6 @@ int main()
 		color_position_shader();
 		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
 		colorCube.draw();
-
 		// Bounding box
 		cubeBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
