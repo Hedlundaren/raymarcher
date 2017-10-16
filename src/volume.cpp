@@ -29,6 +29,11 @@ void Volume::drawData(const int &x, const int &y, const int &z, const glm::vec4 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, x + resolution.x * z, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
 }
 
+void Volume::drawData(const int &z, const std::vector<glm::vec4> &pixels)
+{
+	glTexSubImage2D(GL_TEXTURE_2D, 0, resolution.x * z, 0, resolution.x, resolution.y, GL_RGBA, GL_FLOAT, pixels.data());
+}
+
 glm::vec4 Volume::readData(const int &x, const int &y, const int &z) const
 {
 	std::vector<glm::vec4> pixels(1);
@@ -45,36 +50,41 @@ void Volume::loadTestData()
 {
 
 	float TOTAL_ITERATIONS = this->getResolution().x * this->getResolution().y;
-	for (int i = 0; i < this->getResolution().x; i++)
+
+	unsigned x = 0;
+	unsigned y = 0;
+	unsigned z = 0;
+	for (x = 0; x < this->getResolution().x; x++)
 	{
-		for (int j = 0; j < this->getResolution().y; j++)
+		std::vector<glm::vec4> pixels(resolution.x * resolution.y * resolution.z);
+		for (y = 0; y < this->getResolution().y; y++)
 		{
-			for (int k = 0; k < this->getResolution().z; k++)
+			for (z = 0; z < this->getResolution().z; z++)
 			{
-				this->drawData(i, j, k, glm::vec4(0, 0, 0, 0));
+				this->drawData(x, y, z, glm::vec4(0, 0, 0, 0));
 
 				float v1 = rand() % 100;
 				if (v1 > 0)
 				{
-					this->drawData(i, j, k, glm::vec4(v1 / 100, 0, 0, 0.01));
+					this->drawData(x, y, z, glm::vec4(v1 / 100, 0, 0, 0.01));
 				}
 
-				glm::vec3 pos = glm::vec3(i, j, k);
+				glm::vec3 pos = glm::vec3(x, y, z);
 				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2, (resolution.y - 1) / 2, (resolution.z - 1) / 2);
 				if (length(middle - pos) < resolution.x * 0.3)
 				{
-					this->drawData(i, j, k, glm::vec4(0, 1, 0, 0));
+					this->drawData(x, y, z, glm::vec4(0, 1, 0, 0));
 				}
 
 				if (abs(middle.x - pos.x) > middle.x * 0.9 ||
 					abs(middle.y - pos.y) > middle.y * 0.9 ||
 					abs(middle.z - pos.z) > middle.z * 0.9)
 				{
-					this->drawData(i, j, k, glm::vec4(0, 0, 1.0, 0.005));
+					this->drawData(x, y, z, glm::vec4(0, 0, 1.0, 0.005));
 				}
 			}
 
-			float percentage = 100.0 * (j + this->getResolution().y * i) / TOTAL_ITERATIONS;
+			float percentage = 100.0 * (y + this->getResolution().y * x) / TOTAL_ITERATIONS;
 			std::cout << (percentage) << "% \r";
 		}
 	}
@@ -108,6 +118,70 @@ std::vector<std::string> Volume::split(std::string input, const std::string &del
 	return tokens;
 }
 
+void Volume::InitTextures3D()
+{
+
+	glm::mat3 basis(2.0f);
+	glm::vec3 spacing(0.0f);
+
+	// Reading MPVM volume
+	unsigned char *chardata = nullptr;
+	unsigned int bytesPerVoxel = 0;
+	unsigned char *description = nullptr;
+	unsigned char *courtesy = nullptr;
+	unsigned char *parameter = nullptr;
+	unsigned char *comment = nullptr;
+
+	glm::ivec3 udim{0};
+
+	unsigned int dimx = 0;
+	unsigned int dimy = 0;
+	unsigned int dimz = 0;
+
+	// Holds the luminance buffer
+	chardata = readPVMvolume("data/Bruce.pvm", &dimx, &dimy, &dimz, &bytesPerVoxel, &spacing.x,
+	&spacing.y, &spacing.z, &description, &courtesy, &parameter, &comment);
+	
+	float *floatBuffer = new float[dimy * dimz * dimx];
+
+	unsigned short *ptr = (unsigned short *)chardata;
+	for (unsigned nIndx = 0; nIndx < dimx * dimy * dimz; nIndx++)
+	{
+		unsigned short voxelData = *ptr;
+		float value = (float)voxelData / (8.0 * 65000.0f);
+		floatBuffer[nIndx] = value;
+		ptr++;
+	}
+
+	GLuint mu3DTex;
+	glGenTextures(1, &mu3DTex);
+
+	glEnable(GL_TEXTURE_3D);
+	glBindTexture(GL_TEXTURE_3D, mu3DTex);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+
+	glTexImage3D(GL_TEXTURE_3D,
+				 0,
+				 GL_RED,
+				 dimy,
+				 dimz,
+				 dimx,
+				 0,
+				 GL_RED,
+				 GL_FLOAT,
+				 (GLvoid *)floatBuffer);
+
+	glBindTexture(GL_TEXTURE_3D, mu3DTex);
+
+	delete[] floatBuffer;
+}
+
 // =========== Load different sorts of data =================
 
 void Volume::loadDataPVM(std::string filePath)
@@ -138,7 +212,6 @@ void Volume::loadDataPVM(std::string filePath)
 		std::cout << "Could not read data.\n";
 	}
 
-
 	std::cout << chardata << '\n';
 	std::cout << "dimx: " << dimx << '\n';
 	std::cout << "dimy: " << dimy << '\n';
@@ -152,131 +225,32 @@ void Volume::loadDataPVM(std::string filePath)
 	std::cout << "parameter: " << parameter << '\n';
 	std::cout << "comment: " << comment << '\n';
 
-	unsigned short* ptr = (unsigned short*)chardata;
-	for (unsigned z = 0; z < dimz; z++)
+	unsigned x = 0;
+	unsigned y = 0;
+	unsigned z = 0;
+
+	unsigned short *ptr = (unsigned short *)chardata;
+	for (z = 0; z < dimz; z++)
 	{
-		for (unsigned y = 0; y < dimy; y++)
+
+		std::vector<glm::vec4> pixels(resolution.x * resolution.y * resolution.z);
+
+		for (y = 0; y < dimy; y++)
 		{
-			for (unsigned x = 0; x < dimx; x++)
+			for (x = 0; x < dimx; x++)
 			{
-
-				unsigned short voxelData = *ptr;//static_cast<unsigned short>(*chardata);
-
-
-				float value = (float)voxelData / (8.0*65000.0f);
-				int i = (int)((x / (float)dimx) * resolution.x);
-				int j = (int)((y / (float)dimy) * resolution.y);
-				int k = (int)((z / (float)dimz) * resolution.z);
-
-				// value --> [0,1]
-				this->drawData(i, j, k, glm::vec4(1, 1, 1, value));
-				// std::cout << "voxelData: " << voxelData << '\n';
+				unsigned short voxelData = *ptr;
+				float value = (float)voxelData / (8.0 * 65000.0f);
+				pixels[x + y * resolution.x] = glm::vec4(1, 1, 1, value);
 				ptr++;
 			}
+
+			float percentage = 100.0 * z / (float)dimz;
+			std::cout << (percentage) << "% \r";
 		}
-		float percentage = 100.0 * z / dimz;
-		std::cout << "(percentage)" << "% \r";
+
+		int k = (int)((z / (float)dimz) * resolution.z);
+		this->drawData(k, pixels);
 	}
 	std::cout << "Loading complete." << std::endl;
-
-}
-
-void Volume::loadDataSAV(std::string filename)
-{
-	std::ifstream file;
-	file.open(filename);
-
-	if (file.is_open())
-	{
-		std::string line;
-
-		int count = 0;
-		int re_count = 0;
-		int ra_count = 0;
-		while (getline(file, line))
-		{
-			std::stringstream ss;
-			ss << line;
-
-			// std::cout << line << std::endl;
-
-			std::vector<std::string> tokens = split(line, "=");
-
-			if (tokens.size() > 1)
-			{
-				std::string first = tokens[0];
-				std::string second = tokens[1];
-
-				if (first == "res")
-				{
-					std::string::size_type sz; // alias of size_t
-					int isecond = std::stoi(second, &sz);
-					originalResolution = isecond;
-				}
-				if (first == "re")
-				{
-					re_count++;
-
-					std::string::size_type sz;
-					float fsecond = std::stof(second, &sz);
-					ve.push_back(glm::vec3());
-					ve[ve.size() - 1].r = fsecond;
-				}
-				if (first == "ge")
-				{
-					std::string::size_type sz;
-					float fsecond = std::stof(second, &sz);
-					ve[ve.size() - 1].g = fsecond;
-				}
-				if (first == "be")
-				{
-					std::string::size_type sz;
-					float fsecond = std::stof(second, &sz);
-					ve[ve.size() - 1].b = fsecond;
-				}
-				if (first == "ra")
-				{
-					ra_count++;
-
-					std::string::size_type sz;
-					float fsecond = std::stof(second, &sz);
-					va.push_back(glm::vec3());
-					va[va.size() - 1].r = fsecond;
-				}
-				if (first == "ga")
-				{
-					std::string::size_type sz;
-					float fsecond = std::stof(second, &sz);
-					va[va.size() - 1].g = fsecond;
-				}
-				if (first == "ba")
-				{
-					std::string::size_type sz;
-					float fsecond = std::stof(second, &sz);
-					va[va.size() - 1].b = fsecond;
-				}
-			}
-
-			count++;
-			if (count > 165000)
-				break;
-		}
-		std::cout << "line_count: " << count << "\n";
-		std::cout << "line_count: " << count - 98869 << "\n";
-		std::cout << "re_count: " << re_count << "\n";
-		std::cout << "ra_count: " << ra_count << "\n";
-		std::cout << "res: " << originalResolution << "\n";
-		std::cout << "ve_size: " << ve.size() << "\n";
-	}
-
-	// Send data to texture
-	unsigned i = 0;
-	for (glm::vec3 data : ve)
-	{
-		int x = (int)floor(data.x * resolution.x);
-		int y = (int)floor(data.y * resolution.y);
-		int z = (int)floor(data.z * resolution.z);
-		drawData(x, y, z, glm::vec4(va[i].x));
-		i++;
-	}
 }

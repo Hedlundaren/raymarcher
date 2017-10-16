@@ -19,14 +19,14 @@
 #define H 1080 / 2
 int main()
 {
-	
+
 	std::cout << "======== Marching Time =========" << std::endl;
+
 	// Define window
 	GLFWwindow *window = nullptr;
 	Window w = Window(window, W, H);
 	w.init();
 
-	
 	Clock clock = Clock(window);
 	// Define meshes
 	Quad quad = Quad();
@@ -53,17 +53,20 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(110, 110, 110);
-
+	Volume volume(125, 125, 125);
+	// Framebuffer data;
+	// data.create(16000, 16000);
+	
 	const char *title = "Loading data...";
 	glfwSetWindowTitle(window, title);
 	volume.bindTexture();
+	
 	// volume.loadTestData();
 	// volume.loadDataPVM("data/DTI-B0.pvm");
-	volume.loadDataPVM("data/Bruce.pvm"); 
+	volume.loadDataPVM("data/Bruce.pvm");
+	// volume.loadDataPVM("data/Fuel.pvm");
 	
-	do
-	{
+	do {
 		rotator.poll(window);
 		clock.start();
 		glEnable(GL_CULL_FACE);
@@ -84,6 +87,7 @@ int main()
 		color_position_shader();
 		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
 		colorCube.draw();
+
 		// Bounding box
 		cubeBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -98,22 +102,33 @@ int main()
 		screen_shader();
 		glViewport(0, 0, W, H);
 		screen_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		
 		locator = glGetUniformLocation(screen_shader, "volumeTexture");
 		glUniform1i(locator, 0);
 		glActiveTexture(GL_TEXTURE0);
 		volume.bindTexture();
+
 		locator = glGetUniformLocation(screen_shader, "cubeTexture");
 		glUniform1i(locator, 1);
 		glActiveTexture(GL_TEXTURE1);
 		cubeBuffer.bindTexture();
+
 		locator = glGetUniformLocation(screen_shader, "rayEnterTexture");
 		glUniform1i(locator, 2);
 		glActiveTexture(GL_TEXTURE2);
 		rayEnterBuffer.bindTexture();
+
 		locator = glGetUniformLocation(screen_shader, "rayExitTexture");
 		glUniform1i(locator, 3);
 		glActiveTexture(GL_TEXTURE3);
 		rayExitBuffer.bindTexture();
+		
+		// locator = glGetUniformLocation(screen_shader, "test");
+		// glUniform1i(locator, 4);
+		// glActiveTexture(GL_TEXTURE4);
+		// volume.InitTextures3D();
+		// testBuffer.bindTexture(); // Works with sampler2d
+
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
 		quad.draw();

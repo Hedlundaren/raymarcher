@@ -14,8 +14,17 @@ Volume Data
 http://www9.informatik.uni-erlangen.de/External/vollib/
 https://graphics.stanford.edu/data/voldata/
 
+3D Textures
+https://www.codeproject.com/Articles/352270/Getting-started-with-Volume-Rendering
+
 PVM
 https://github.com/inviwo/inviwo/blob/master/modules/pvm/pvmvolumereader.cpp
 
-Format Instructions (.sav)
-https://www.loc.gov/preservation/digital/formats/fdd/fdd000469.shtml#identification 
+Real-Time Volume graphics
+http://www.real-time-volume-graphics.org/?page_id=28
+
+
+Special Thanks:
+Ingemar Ragnemalm - providing with volumes
+Robin Skånberg - reading pvm
+

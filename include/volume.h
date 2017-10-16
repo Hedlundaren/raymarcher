@@ -21,9 +21,10 @@ public:
     void bindTexture();
     void bindBuffer();
     void drawData(const int &x, const int &y, const int &z, const glm::vec4 &v);
+    void drawData(const int &z, const std::vector<glm::vec4> &pixels);
     void loadTestData();
 
-    void loadDataSAV(std::string filename);
+    void InitTextures3D();
     void loadDataPVM(std::string filePath);
     
     glm::vec4 readData(const int &x, const int &y, const int &z) const;
@@ -34,9 +35,5 @@ private:
     Framebuffer data;
     glm::vec3 resolution;
     int originalResolution;
-    
-    std::vector<glm::vec3> ve;
-    std::vector<glm::vec3> va;
-
     
 };

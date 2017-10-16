@@ -1,20 +1,26 @@
 Ideas
 =====================
+Framebuffer should take volumes > 100^3
 Store unsigned data positions
 Precalculate shader variables
 Rotation with quaternions
-Framebuffer should take volumes > 100^3
 Transfer function
 GUI
 Clean main
-
-In Progress
-=====================
-Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
-
+Lower rendering quality at interaction
+Nyquist sampling rate >= 2 samples per voxel (adaptive sampling)
 
 Finished
 =====================
+Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
 Remove unnecessary uniforms
 random start depends on stepsize
 Bounding Cube
+
+Comments
+===================================
+2D_TEXTURE LONG => 126^3
+2D_TEXTURE SQUARE => 635^3
+3D_TEXTURE  => 16000^3 (slow)
+
+pass pixels by reference => huge speed gain
