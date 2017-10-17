@@ -56,7 +56,7 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(126, 126, 126);
+	Volume volume(256, 256, 256);
 	
 	volume.bindTexture();
 	

@@ -2,14 +2,18 @@
 
 Volume::Volume(const int &size)
 {
-	data.create(size * size, size);
-	resolution = glm::vec3(size);
+	resolution = glm::ivec3(size);
+	int X = size * (int) ceil(sqrt( (float) size));
+	int Y = size * (int) ceil(sqrt( (float) size));
+	data.create(X, Y);
 }
 
 Volume::Volume(const int &x, const int &y, const int &z)
 {
-	data.create(x * z, y);
-	resolution = glm::vec3(x, y, z);
+	resolution = glm::ivec3(x, y, z);
+	int X = resolution.x * (int) ceil(sqrt( (float) resolution.z));
+	int Y = resolution.y * (int) ceil(sqrt( (float) resolution.z));
+	data.create(X, Y);
 }
 
 void Volume::bindTexture()
@@ -26,12 +30,18 @@ void Volume::drawData(const int &x, const int &y, const int &z, const float &v)
 {
 	std::vector<float> pixels(1);
 	pixels[0] = v;
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x + resolution.x * z, y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
+
+	// std::cout << "resz sqrt: " << (int) sqrt(resolution.z) << "\n";
+	int X = x + (z % (int) ceil(sqrt( (float) resolution.z))) * resolution.x;
+	int Y = y + ((int)(z/ceil(sqrt( (float) resolution.z)))) * resolution.y;
+	glTexSubImage2D(GL_TEXTURE_2D, 0, X, Y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
 }
 
-void Volume::drawData(const int &z, const std::vector<float> &pixels)
+void Volume::drawData(const int &z, const std::vector<float> &pixels, const int &dimx, const int &dimy)
 {
-	glTexSubImage2D(GL_TEXTURE_2D, 0, resolution.x * z, 0, resolution.x, resolution.y, GL_RED, GL_FLOAT, pixels.data());
+	int X = (z % (int) ceil(sqrt( (float) resolution.z))) * resolution.x;
+	int Y = ((int)(z/ceil(sqrt( (float) resolution.z)))) * resolution.y;
+	glTexSubImage2D(GL_TEXTURE_2D, 0, X, Y, resolution.x, resolution.y, GL_RED, GL_FLOAT, pixels.data());
 }
 
 glm::vec4 Volume::readData(const int &x, const int &y, const int &z) const
@@ -249,7 +259,7 @@ void Volume::loadDataPVM(std::string filePath)
 		}
 
 		const int k = (int)((z / (float)dimz) * resolution.z);
-		this->drawData(k, pixels);
+		this->drawData(k, pixels, dimx, dimy);
 	}
 	std::cout << "Loading complete." << std::endl;
 }

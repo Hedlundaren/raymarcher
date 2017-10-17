@@ -5,6 +5,7 @@
 #include "framebufferfloat.h"
 
 #include <iostream>
+#include <math.h>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -21,7 +22,7 @@ public:
     void bindTexture();
     void bindBuffer();
     void drawData(const int &x, const int &y, const int &z, const float &v);
-    void drawData(const int &z, const std::vector<float> &pixels);
+    void drawData(const int &z, const std::vector<float> &pixels, const int &dimx, const int &dimy);
     void loadTestData();
 
     void InitTextures3D();
@@ -33,7 +34,7 @@ public:
 
 private:
     FramebufferFloat data;
-    glm::vec3 resolution;
+    glm::ivec3 resolution;
     int originalResolution;
     
 };

@@ -3,6 +3,7 @@
 #include <iostream>
 #include "GL/glew.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 
 class FramebufferFloat
@@ -19,7 +20,9 @@ public:
 
 	void bindBuffer();
 	void bindTexture();
-    GLuint get();
+	GLuint get();
+	glm::ivec2 getResolution();
+
 private:
 	GLuint framebuffer;
 	GLuint textureColorbuffer;

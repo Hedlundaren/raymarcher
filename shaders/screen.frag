@@ -96,10 +96,17 @@ bool insideUnitCube(vec3 p){
 vec4 readVolume(int x, int y, int z){
 	vec4 voxel;
 	vec2 volumeCoord;
-	ivec2 size = textureSize(volumeTexture, 0);
-	float size_x = size.x / volumeResolution.x;
-	volumeCoord.x = ((x + size_x*z) + 0.5)/size.x;
-	volumeCoord.y = (y + 0.5)/size.y;
+	ivec2 texSize = textureSize(volumeTexture, 0);
+	// float size_x = size.x / volumeResolution.x;
+	// volumeCoord.x = ((x + size_x*z) + 0.5)/size.x;
+	// volumeCoord.y = (y + 0.5)/size.y;
+
+
+	float squareSize = texSize.x / volumeResolution.x;
+
+	volumeCoord.x = (x + mod(z, squareSize) * volumeResolution.x) / (texSize.x);
+	volumeCoord.y = (y + floor(z / squareSize) * volumeResolution.y ) / (texSize.y);
+
 	voxel = vec4(0, 0, 0, texture(volumeTexture, volumeCoord).x);
 
 	return voxel;
@@ -108,17 +115,23 @@ vec4 readVolume(int x, int y, int z){
 vec4 readVolume(float x, float y, float z){
 
 	// Transformations of data
-	// Works as vertext shader
+	
+	
+	// Morph
 	// x += 0.05*sin(time/4.0 + 7 * y);
 	// y += 0.03*sin(time/4.0 + 10 * x);
 	// z += 0.04*sin(time/4.0 + 13* x);
 
-	// if(!insideUnitCube(vec3(x,y,z))) return vec4(0);
-	// ============================
-
+	// 3D texture
 	// return vec4(1,1,1,texture(test, vec3(x,y,z)));
 
-
+	// Scale
+	// ============================
+	// float factor = 0.6;
+	// x -= factor*(0.5 - x);
+	// y -= factor*(0.5 - y);
+	// z -= factor*(0.5 - z);
+	// if(!insideUnitCube(vec3(x,y,z))) return vec4(0);
 	//==============================
 
 	// Read at correct place in volume

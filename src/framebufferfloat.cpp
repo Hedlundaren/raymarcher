@@ -30,6 +30,11 @@ void FramebufferFloat::bindBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 }
 
+glm::ivec2 FramebufferFloat::getResolution(){
+	return glm::ivec2(width, height);
+}
+
+
 void FramebufferFloat::create_framebuffer() {
 	
 	// Framebuffer
