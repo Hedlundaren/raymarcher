@@ -2,7 +2,7 @@
 
 
 #include "glm/glm.hpp"
-#include "framebuffer.h"
+#include "framebufferfloat.h"
 
 #include <iostream>
 #include <fstream>
@@ -20,8 +20,8 @@ public:
 
     void bindTexture();
     void bindBuffer();
-    void drawData(const int &x, const int &y, const int &z, const glm::vec4 &v);
-    void drawData(const int &z, const std::vector<glm::vec4> &pixels);
+    void drawData(const int &x, const int &y, const int &z, const float &v);
+    void drawData(const int &z, const std::vector<float> &pixels);
     void loadTestData();
 
     void InitTextures3D();
@@ -32,7 +32,7 @@ public:
     std::vector<std::string> split(std::string line, const std::string &delimiter);        
 
 private:
-    Framebuffer data;
+    FramebufferFloat data;
     glm::vec3 resolution;
     int originalResolution;
     

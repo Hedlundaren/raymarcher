@@ -100,7 +100,7 @@ vec4 readVolume(int x, int y, int z){
 	float size_x = size.x / volumeResolution.x;
 	volumeCoord.x = ((x + size_x*z) + 0.5)/size.x;
 	volumeCoord.y = (y + 0.5)/size.y;
-	voxel = texture(volumeTexture, volumeCoord);
+	voxel = vec4(0, 0, 0, texture(volumeTexture, volumeCoord).x);
 
 	return voxel;
 }
@@ -150,7 +150,6 @@ void transferFunction(inout vec4 data){
 		if(data.a < 0.02) data.a = 0.0;
 		else data.a *= 4.0;
 }
-
 
 void main(void)
 {
@@ -207,13 +206,11 @@ void main(void)
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 		if(v.a > 1.0) break;
-
 		ray += stepSize * rayDirection;
 		normal = estimateNormal(ray);
 		float ambient = 0.3;
 		float diffuse = 0.4*max(dot(normal, light), 0.0);
 		float specular = 0.4 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
-
 		vec4 data = readVolume(ray.x, ray.y, ray.z);
 		transferFunction(data);
 		

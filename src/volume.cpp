@@ -22,22 +22,22 @@ void Volume::bindBuffer()
 	data.bindBuffer();
 }
 
-void Volume::drawData(const int &x, const int &y, const int &z, const glm::vec4 &v)
+void Volume::drawData(const int &x, const int &y, const int &z, const float &v)
 {
-	std::vector<glm::vec4> pixels(1);
+	std::vector<float> pixels(1);
 	pixels[0] = v;
-	glTexSubImage2D(GL_TEXTURE_2D, 0, x + resolution.x * z, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
+	glTexSubImage2D(GL_TEXTURE_2D, 0, x + resolution.x * z, y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
 }
 
-void Volume::drawData(const int &z, const std::vector<glm::vec4> &pixels)
+void Volume::drawData(const int &z, const std::vector<float> &pixels)
 {
-	glTexSubImage2D(GL_TEXTURE_2D, 0, resolution.x * z, 0, resolution.x, resolution.y, GL_RGBA, GL_FLOAT, pixels.data());
+	glTexSubImage2D(GL_TEXTURE_2D, 0, resolution.x * z, 0, resolution.x, resolution.y, GL_RED, GL_FLOAT, pixels.data());
 }
 
 glm::vec4 Volume::readData(const int &x, const int &y, const int &z) const
 {
 	std::vector<glm::vec4> pixels(1);
-	glReadPixels(x + resolution.x * z, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
+	glReadPixels(x + resolution.x * z, y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
 	return pixels[0];
 }
 
@@ -61,26 +61,26 @@ void Volume::loadTestData()
 		{
 			for (z = 0; z < this->getResolution().z; z++)
 			{
-				this->drawData(x, y, z, glm::vec4(0, 0, 0, 0));
+				this->drawData(x, y, z, 0.0);
 
 				float v1 = rand() % 100;
 				if (v1 > 0)
 				{
-					this->drawData(x, y, z, glm::vec4(v1 / 100, 0, 0, 0.01));
+					this->drawData(x, y, z, 0.01);
 				}
 
 				glm::vec3 pos = glm::vec3(x, y, z);
 				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2, (resolution.y - 1) / 2, (resolution.z - 1) / 2);
 				if (length(middle - pos) < resolution.x * 0.3)
 				{
-					this->drawData(x, y, z, glm::vec4(0, 1, 0, 0.1));
+					this->drawData(x, y, z, 0.1);
 				}
 
 				if (abs(middle.x - pos.x) > middle.x * 0.9 ||
 					abs(middle.y - pos.y) > middle.y * 0.9 ||
 					abs(middle.z - pos.z) > middle.z * 0.9)
 				{
-					this->drawData(x, y, z, glm::vec4(0, 0, 1.0, 0.005));
+					this->drawData(x, y, z, 0.005);
 				}
 			}
 
@@ -90,17 +90,17 @@ void Volume::loadTestData()
 	}
 	std::cout << "Loading complete." << std::endl;
 
-	this->drawData(0, 0, 0, glm::vec4(0.0, 0, 1, 1));
-	this->drawData(resolution.x - 1, 0, 0, glm::vec4(0.3, 0, 1, 1));
-	this->drawData(0, 0, resolution.z - 1, glm::vec4(0.6, 0, 1, 1));
-	this->drawData(resolution.x - 1, 0, resolution.z - 1, glm::vec4(0.9, 0, 1, 1));
+	this->drawData(0, 0, 0, 1.0);
+	this->drawData(resolution.x - 1, 0, 0, 1.0);
+	this->drawData(0, 0, resolution.z - 1, 1.0);
+	this->drawData(resolution.x - 1, 0, resolution.z - 1, 1.0);
 
-	this->drawData(0, resolution.y - 1, resolution.z - 1, glm::vec4(0.0, 1, 0, 1));
-	this->drawData(resolution.x - 1, resolution.y - 1, resolution.z - 1, glm::vec4(0.3, 1, 0, 1));
-	this->drawData(0, resolution.x - 1, 0, glm::vec4(0.6, 1, 0, 1));
-	this->drawData(resolution.x - 1, resolution.y - 1, 0, glm::vec4(0.9, 1, 0, 1));
+	this->drawData(0, resolution.y - 1, resolution.z - 1, 1.0);
+	this->drawData(resolution.x - 1, resolution.y - 1, resolution.z - 1, 1.0);
+	this->drawData(0, resolution.x - 1, 0, 1.0);
+	this->drawData(resolution.x - 1, resolution.y - 1, 0, 1.0);
 
-	this->drawData(resolution.x / 2, resolution.y / 2, resolution.z / 2, glm::vec4(1, 1, 1, 1));
+	this->drawData(resolution.x / 2, resolution.y / 2, resolution.z / 2, 1.0);
 }
 
 std::vector<std::string> Volume::split(std::string input, const std::string &delimiter)
@@ -232,7 +232,7 @@ void Volume::loadDataPVM(std::string filePath)
 	for (z = 0; z < dimz; z++)
 	{
 
-		std::vector<glm::vec4> pixels(resolution.x * resolution.y * resolution.z);
+		std::vector<float> pixels(resolution.x * resolution.y * resolution.z);
 
 		for (y = 0; y < dimy; y++)
 		{
@@ -240,7 +240,7 @@ void Volume::loadDataPVM(std::string filePath)
 			{
 				unsigned short voxelData = *ptr;
 				float value = (float)voxelData / (8.0 * 65000.0f);
-				pixels[x + y * resolution.x] = glm::vec4(1, 1, 1, value);
+				pixels[x + y * resolution.x] = value;
 				ptr++;
 			}
 
