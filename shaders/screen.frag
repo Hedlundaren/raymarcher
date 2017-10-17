@@ -24,7 +24,7 @@ const float borderUp = 		cubeSize;
 const float borderNear = 	0.0;
 const float borderFar = 	cubeSize;
 
-const float EPSILON = 0.01;
+const float EPSILON = 0.016;
 #define PI 3.14159265359
 
 float intersectSDF(float distA, float distB) {
@@ -109,9 +109,11 @@ vec4 readVolume(float x, float y, float z){
 
 	// Transformations of data
 	// Works as vertext shader
-	// y += 0.3*sin(time/4.0 + x);
+	// x += 0.05*sin(time/4.0 + 7 * y);
+	// y += 0.03*sin(time/4.0 + 10 * x);
+	// z += 0.04*sin(time/4.0 + 13* x);
 
-
+	// if(!insideUnitCube(vec3(x,y,z))) return vec4(0);
 	// ============================
 
 	// return vec4(1,1,1,texture(test, vec3(x,y,z)));
@@ -141,14 +143,14 @@ vec3 estimateNormal(vec3 p) {
 
 void transferFunction(inout vec4 data){
 
-		if(data.a > 0.02) data.xyz = vec3(0.8,0,0);
-		if(data.a > 0.03) data.xyz = vec3(0.8,0.3,0);
-		if(data.a > 0.05) data.xyz = vec3(0.7,0.6,0);
-		if(data.a > 0.07) data.xyz = vec3(0.9,0.9,0.8);
+		if(data.a > 0.02) data.xyz = vec3(0.6,0.2,0.2);
+		if(data.a > 0.03) data.xyz = vec3(0.5,0.4,.3);
+		if(data.a > 0.05) data.xyz = vec3(0.7,0.6,.3);
+		if(data.a > 0.07) data.xyz = vec3(0.8,0.8,0.7);
 		if(data.a < 0.02) data.a = 0.0;
-		else data.a *= 7.0;
-		
+		else data.a *= 4.0;
 }
+
 
 void main(void)
 {
@@ -164,7 +166,7 @@ void main(void)
 	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
 	vec3 exitPos = texture(rayExitTexture, texCoord).xyz;
 	float stepSize = 0.001;
-	stepSize = 0.007;
+	stepSize = 0.005;
 
 	float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
 	// randomStart = 0;
@@ -178,7 +180,7 @@ void main(void)
 	
 	vec4 v = vec4(0); 
 	vec4 boundingCube =  vec4(0,0,0,1);
-	vec4 boundingCubeColor = vec4(0.5, 0.5, 0.5, 1);
+	vec4 boundingCubeColor = vec4(0.1, 0.1, 0.1, 1);
 	 
 	// For mathematical visualizations
 	// for(int i = 0; i < MAX_MARCHING_STEPS; i++){
@@ -208,9 +210,9 @@ void main(void)
 
 		ray += stepSize * rayDirection;
 		normal = estimateNormal(ray);
-		float ambient = 0.2;
+		float ambient = 0.4;
 		float diffuse = max(dot(normal, light), 0.0);
-		float specular = pow(max(dot(reflect(-light, normal), normalize(camPos - ray)), 0), 50);
+		float specular = 1.0 * pow(max(dot(reflect(-light, normal), normalize(camPos - ray)), 0), 50);
 
 		vec4 data = readVolume(ray.x, ray.y, ray.z);
 		transferFunction(data);
@@ -226,5 +228,8 @@ void main(void)
 		} 
 	}
 
-	outColor = v + boundingCube * boundingCubeColor;
+
+	outColor = v;// + boundingCube * boundingCubeColor;
+
+	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
 }

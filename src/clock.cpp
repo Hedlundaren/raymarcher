@@ -1,25 +1,36 @@
 #include "clock.h"
 
-Clock::Clock(GLFWwindow *w) : window(w){
-
+Clock::Clock(GLFWwindow *w) : window(w)
+{
 }
 
-void Clock::start(){
-    current_ticks = clock();
+double Clock::clockToMilliseconds(clock_t ticks)
+{
+    return (ticks / (double)CLOCKS_PER_SEC) * 1000.0;
+}
+
+void Clock::tic()
+{
     time += 0.1;
+    beginFrame = clock();
 }
 
-void Clock::stop(){
-    current_ticks = clock();
+void Clock::toc()
+{
+    endFrame = clock();
+    deltaTime += endFrame - beginFrame;
+    frames++;
 
-    // delta_ticks = clock() - current_ticks; //the time, in ms, that took to render the scene
-    // fps = CLOCKS_PER_SEC / delta_ticks;
-    std::string test = "Marching time ";// + std::to_string(fps);
-    const char *title = test.c_str();
-    glfwSetWindowTitle(window, title);
+    if (deltaTime > 1000.0)
+    {  
+
+        deltaTime = 0;
+        frames = 0;
+    }
+    
 }
 
-float Clock::getTime(){
+float Clock::getTime()
+{
     return time;
 }
-

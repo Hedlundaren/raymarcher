@@ -140,8 +140,8 @@ void Volume::InitTextures3D()
 
 	// Holds the luminance buffer
 	chardata = readPVMvolume("data/Bruce.pvm", &dimx, &dimy, &dimz, &bytesPerVoxel, &spacing.x,
-	&spacing.y, &spacing.z, &description, &courtesy, &parameter, &comment);
-	
+							 &spacing.y, &spacing.z, &description, &courtesy, &parameter, &comment);
+
 	float *floatBuffer = new float[dimy * dimz * dimx];
 
 	unsigned short *ptr = (unsigned short *)chardata;
@@ -164,7 +164,6 @@ void Volume::InitTextures3D()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
 
 	glTexImage3D(GL_TEXTURE_3D,
 				 0,
@@ -212,18 +211,18 @@ void Volume::loadDataPVM(std::string filePath)
 		std::cout << "Could not read data.\n";
 	}
 
-	std::cout << chardata << '\n';
-	std::cout << "dimx: " << dimx << '\n';
-	std::cout << "dimy: " << dimy << '\n';
-	std::cout << "dimz: " << dimz << '\n';
-	std::cout << "bytesPerVoxelbytes: " << bytesPerVoxel << '\n';
-	std::cout << "spacing.x: " << spacing.x << '\n';
-	std::cout << "spacing.y: " << spacing.y << '\n';
-	std::cout << "spacing.z: " << spacing.z << '\n';
-	std::cout << "description: " << description << '\n';
-	std::cout << "courtesy: " << courtesy << '\n';
-	std::cout << "parameter: " << parameter << '\n';
-	std::cout << "comment: " << comment << '\n';
+	// std::cout << chardata << '\n';
+	// std::cout << "dimx: " << dimx << '\n';
+	// std::cout << "dimy: " << dimy << '\n';
+	// std::cout << "dimz: " << dimz << '\n';
+	// std::cout << "bytesPerVoxelbytes: " << bytesPerVoxel << '\n';
+	// std::cout << "spacing.x: " << spacing.x << '\n';
+	// std::cout << "spacing.y: " << spacing.y << '\n';
+	// std::cout << "spacing.z: " << spacing.z << '\n';
+	// std::cout << "description: " << description << '\n';
+	// std::cout << "courtesy: " << courtesy << '\n';
+	// std::cout << "parameter: " << parameter << '\n';
+	// std::cout << "comment: " << comment << '\n';
 
 	unsigned x = 0;
 	unsigned y = 0;
@@ -249,7 +248,7 @@ void Volume::loadDataPVM(std::string filePath)
 			std::cout << (percentage) << "% \r";
 		}
 
-		int k = (int)((z / (float)dimz) * resolution.z);
+		const int k = (int)((z / (float)dimz) * resolution.z);
 		this->drawData(k, pixels);
 	}
 	std::cout << "Loading complete." << std::endl;
