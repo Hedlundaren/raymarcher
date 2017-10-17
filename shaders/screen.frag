@@ -210,9 +210,9 @@ void main(void)
 
 		ray += stepSize * rayDirection;
 		normal = estimateNormal(ray);
-		float ambient = 0.4;
-		float diffuse = max(dot(normal, light), 0.0);
-		float specular = 1.0 * pow(max(dot(reflect(-light, normal), normalize(camPos - ray)), 0), 50);
+		float ambient = 0.3;
+		float diffuse = 0.4*max(dot(normal, light), 0.0);
+		float specular = 0.4 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
 
 		vec4 data = readVolume(ray.x, ray.y, ray.z);
 		transferFunction(data);

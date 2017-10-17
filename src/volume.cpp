@@ -73,7 +73,7 @@ void Volume::loadTestData()
 				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2, (resolution.y - 1) / 2, (resolution.z - 1) / 2);
 				if (length(middle - pos) < resolution.x * 0.3)
 				{
-					this->drawData(x, y, z, glm::vec4(0, 1, 0, 0));
+					this->drawData(x, y, z, glm::vec4(0, 1, 0, 0.1));
 				}
 
 				if (abs(middle.x - pos.x) > middle.x * 0.9 ||
