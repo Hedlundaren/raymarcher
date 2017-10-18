@@ -18,8 +18,6 @@
 #define W 1920 / 2
 #define H 1080 / 2
 
-
-
 int main()
 {
 
@@ -30,7 +28,7 @@ int main()
 	Window w = Window(window, W, H);
 	w.init();
 	Clock clock = Clock(window);
-	
+
 	// Define meshes
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
@@ -61,19 +59,20 @@ int main()
 	volume.bindTexture();
 	glfwSetWindowTitle(window, "Loading data...");
 
-	// volume.loadTestData();
+	volume.loadTestData();
 	// volume.loadDataPVM("data/DTI-B0.pvm");
 	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
 	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
 	// volume.loadDataPVM("data/CT-Head.pvm");
 	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
-	 volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
-	//  volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
+	volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
+	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
-	
+
 	glfwSetWindowTitle(window, "Marching time");
 
-	do {
+	do
+	{
 		rotator.poll(window);
 		// clock.tic();
 		glEnable(GL_CULL_FACE);
@@ -109,7 +108,7 @@ int main()
 		screen_shader();
 		glViewport(0, 0, W, H);
 		screen_shader.updateCommonUniforms(rotator, W, H, glfwGetTime());
-		
+
 		locator = glGetUniformLocation(screen_shader, "volumeTexture");
 		glUniform1i(locator, 0);
 		glActiveTexture(GL_TEXTURE0);
@@ -129,7 +128,7 @@ int main()
 		glUniform1i(locator, 3);
 		glActiveTexture(GL_TEXTURE3);
 		rayExitBuffer.bindTexture();
-		
+
 		// locator = glGetUniformLocation(screen_shader, "test");
 		// glUniform1i(locator, 4);
 		// glActiveTexture(GL_TEXTURE4);
@@ -140,7 +139,7 @@ int main()
 		quad.draw();
 
 		// clock.toc();
-		
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 

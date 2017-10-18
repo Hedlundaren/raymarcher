@@ -65,38 +65,33 @@ void Volume::loadTestData()
 	unsigned y = 0;
 	unsigned z = 0;
 	for (x = 0; x < this->getResolution().x; x++)
-	{
-		std::vector<glm::vec4> pixels(resolution.x * resolution.y * resolution.z);
+	{	
+		std::vector<float> pixels(resolution.x * resolution.y);
 		for (y = 0; y < this->getResolution().y; y++)
 		{
 			for (z = 0; z < this->getResolution().z; z++)
 			{
-				this->drawData(x, y, z, 0.0);
 
-				float v1 = rand() % 100;
-				if (v1 > 0)
-				{
-					this->drawData(x, y, z, 0.01);
-				}
+				// float v1 = rand() % 100;
+				// if (v1 > 0)
+				// {
+				// 	pixels[z + y*resolution.z] = 0.21;
+				// }
 
 				glm::vec3 pos = glm::vec3(x, y, z);
-				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2, (resolution.y - 1) / 2, (resolution.z - 1) / 2);
+				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2.0, (resolution.y - 1) / 2.0, (resolution.z - 1) / 2.0);
 				if (length(middle - pos) < resolution.x * 0.3)
 				{
-					this->drawData(x, y, z, 0.1);
+					pixels[z + y*resolution.z] = 0.5;
 				}
 
-				if (abs(middle.x - pos.x) > middle.x * 0.9 ||
-					abs(middle.y - pos.y) > middle.y * 0.9 ||
-					abs(middle.z - pos.z) > middle.z * 0.9)
-				{
-					this->drawData(x, y, z, 0.005);
-				}
+				
 			}
 
 			float percentage = 100.0 * (y + this->getResolution().y * x) / TOTAL_ITERATIONS;
 			std::cout << (percentage) << "% \r";
 		}
+		this->drawData(x, pixels, 0, 0);
 	}
 	std::cout << "Loading complete." << std::endl;
 
@@ -257,7 +252,7 @@ void Volume::loadDataPVM(std::string filePath)
 	for (z = 0; z < dimz; z++)
 	{
 
-		std::vector<float> pixels(resolution.x * resolution.y * resolution.z);
+		std::vector<float> pixels(resolution.x * resolution.y);
 
 		for (y = 0; y < dimy; y++)
 		{
