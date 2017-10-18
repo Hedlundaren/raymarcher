@@ -60,11 +60,12 @@ float waterSDF(vec3 p) {
 }
 
 float sceneSDF(vec3 p) {
+    return waterSDF(p - vec3(0.5));
     // return intersectSDF(waterSDF(p), cubeSDF(p, vec3(0.5), 0.1));
-    return unionSDF(
-			intersectSDF(waterSDF(p), sphereSDF(p)),
-			cubeSDF(p - vec3(0,0.3,0), vec3(0.1, 0.2*sin(time/4) + 0.1 + 0.1, 0.1), 0.08)
-			);
+    // return unionSDF(
+	// 		intersectSDF(waterSDF(p), sphereSDF(p)),
+	// 		cubeSDF(p - vec3(0,0.3,0), vec3(0.1, 0.2*sin(time/4) + 0.1 + 0.1, 0.1), 0.08)
+	// 		);
 }
 
 
@@ -97,18 +98,11 @@ vec4 readVolume(int x, int y, int z){
 	vec4 voxel;
 	vec2 volumeCoord;
 	ivec2 texSize = textureSize(volumeTexture, 0);
-	// float size_x = size.x / volumeResolution.x;
-	// volumeCoord.x = ((x + size_x*z) + 0.5)/size.x;
-	// volumeCoord.y = (y + 0.5)/size.y;
-
 
 	float squareSize = texSize.x / volumeResolution.x;
-
 	volumeCoord.x = (x + mod(z, squareSize) * volumeResolution.x) / (texSize.x);
 	volumeCoord.y = (y + floor(z / squareSize) * volumeResolution.y ) / (texSize.y);
-
 	voxel = vec4(0, 0, 0, texture(volumeTexture, volumeCoord).x);
-
 	return voxel;
 }
 
@@ -124,9 +118,11 @@ vec4 readVolume(float x, float y, float z){
 
 	// 3D texture
 	// return vec4(1,1,1,texture(test, vec3(x,y,z)));
-
+	
 	// Scale
 	// ============================
+	// z = volumeResolution.x/volumeResolution.z * (z - 0.25);
+	// y *= volumeResolution.x/volumeResolution.y;
 	// float factor = 0.6;
 	// x -= factor*(0.5 - x);
 	// y -= factor*(0.5 - y);
@@ -156,12 +152,12 @@ vec3 estimateNormal(vec3 p) {
 
 void transferFunction(inout vec4 data){
 
-		if(data.a > 0.02) data.xyz = vec3(0.6,0.2,0.2);
-		if(data.a > 0.03) data.xyz = vec3(0.5,0.4,.3);
-		if(data.a > 0.05) data.xyz = vec3(0.7,0.6,.3);
-		if(data.a > 0.07) data.xyz = vec3(0.8,0.8,0.7);
-		if(data.a < 0.02) data.a = 0.0;
-		else data.a *= 4.0;
+		if(data.a > 0.1) data.xyz = vec3(0.6,0.2,0.2);
+		if(data.a > 0.3) data.xyz = vec3(0.63,0.46,.34);
+		if(data.a > 0.6) data.xyz = vec3(0.6,0.5,.4);
+		if(data.a > 0.8) data.xyz = vec3(0.8,0.8,0.7);
+		if(data.a < 0.1) data.a = 0.0;
+		else data.a *= 0.4;
 }
 
 void main(void)
@@ -194,34 +190,28 @@ void main(void)
 	vec4 boundingCube =  vec4(0,0,0,1);
 	vec4 boundingCubeColor = vec4(0.1, 0.1, 0.1, 1);
 	 
-	// For mathematical visualizations
-	// for(int i = 0; i < MAX_MARCHING_STEPS; i++){
-
-	// 	float dist = sceneSDF(ray);
-
-	// 	if(dist < EPSILON){ // Hit surface
-	// 		normal = estimateNormalSDF(ray);
-
-	// 		float diffuse = max(dot(normal, light), 0.0);
-	// 		float ambient = 0.004;
-	// 		vec3 R = reflect(-light, normal);
-	// 		vec3 V = normalize(camPos - ray); // View direction
-	// 		float specular = pow(max(dot(R, V), 0), 5);
-	// 		float specular2 = pow(max(dot(R, V), 0), 100);
-	// 		v.r +=  5.7 * (ambient +  0.01 * diffuse + 0.01 * specular + 0.1 * specular2);
-	// 		v.y += 5.0 * (ray.y / 100.0);
-	// 	}
-		
-	// 	ray += dist * rayDirection;
-	// }
-
 	
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
 		if(v.a > 1.0) break;
+
+		// float dist = sceneSDF(ray);
+
+		// if(dist < EPSILON){ // Hit surface
+		// 	normal = estimateNormalSDF(ray);
+		// 	float diffuse = max(dot(normal, light), 0.0);
+		// 	float ambient = 0.004;
+		// 	vec3 R = reflect(-light, normal);
+		// 	vec3 V = normalize(camPos - ray); // View direction
+		// 	float specular = pow(max(dot(R, V), 0), 5);
+		// 	float specular2 = pow(max(dot(R, V), 0), 100);
+		// 	// v.r +=  5.7 * (ambient +  0.01 * diffuse + 0.01 * specular + 0.1 * specular2);
+		// 	v.a += 0.004;
+		// }
+
 		ray += stepSize * rayDirection;
 		normal = estimateNormal(ray);
-		float ambient = 0.3;
+		float ambient = 0.4;
 		float diffuse = 0.4*max(dot(normal, light), 0.0);
 		float specular = 0.4 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
 		vec4 data = readVolume(ray.x, ray.y, ray.z);

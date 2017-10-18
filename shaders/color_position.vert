@@ -15,8 +15,8 @@ void main() {
 	
 	vec3 newPos = (position - vec3(0.5));
 	oldPos = position;
+	// newPos.z *= 156.0/256.0;
 	newNormal = normal;
 	texCoord = uv;
-
     gl_Position = P * MV * vec4(newPos, 1.0f);
 }

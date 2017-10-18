@@ -3,16 +3,16 @@
 Volume::Volume(const int &size)
 {
 	resolution = glm::ivec3(size);
-	int X = size * (int) ceil(sqrt( (float) size));
-	int Y = size * (int) ceil(sqrt( (float) size));
+	int X = size * (int)ceil(sqrt((float)size));
+	int Y = size * (int)ceil(sqrt((float)size));
 	data.create(X, Y);
 }
 
 Volume::Volume(const int &x, const int &y, const int &z)
 {
 	resolution = glm::ivec3(x, y, z);
-	int X = resolution.x * (int) ceil(sqrt( (float) resolution.z));
-	int Y = resolution.y * (int) ceil(sqrt( (float) resolution.z));
+	int X = resolution.x * (int)ceil(sqrt((float)resolution.z));
+	int Y = resolution.y * (int)ceil(sqrt((float)resolution.z));
 	data.create(X, Y);
 }
 
@@ -32,15 +32,15 @@ void Volume::drawData(const int &x, const int &y, const int &z, const float &v)
 	pixels[0] = v;
 
 	// std::cout << "resz sqrt: " << (int) sqrt(resolution.z) << "\n";
-	int X = x + (z % (int) ceil(sqrt( (float) resolution.z))) * resolution.x;
-	int Y = y + ((int)(z/ceil(sqrt( (float) resolution.z)))) * resolution.y;
+	int X = x + (z % (int)ceil(sqrt((float)resolution.z))) * resolution.x;
+	int Y = y + ((int)(z / ceil(sqrt((float)resolution.z)))) * resolution.y;
 	glTexSubImage2D(GL_TEXTURE_2D, 0, X, Y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
 }
 
 void Volume::drawData(const int &z, const std::vector<float> &pixels, const int &dimx, const int &dimy)
 {
-	int X = (z % (int) ceil(sqrt( (float) resolution.z))) * resolution.x;
-	int Y = ((int)(z/ceil(sqrt( (float) resolution.z)))) * resolution.y;
+	int X = (z % (int)ceil(sqrt((float)resolution.z))) * resolution.x;
+	int Y = ((int)(z / ceil(sqrt((float)resolution.z)))) * resolution.y;
 	glTexSubImage2D(GL_TEXTURE_2D, 0, X, Y, resolution.x, resolution.y, GL_RED, GL_FLOAT, pixels.data());
 }
 
@@ -222,23 +222,38 @@ void Volume::loadDataPVM(std::string filePath)
 	}
 
 	// std::cout << chardata << '\n';
-	// std::cout << "dimx: " << dimx << '\n';
-	// std::cout << "dimy: " << dimy << '\n';
-	// std::cout << "dimz: " << dimz << '\n';
-	// std::cout << "bytesPerVoxelbytes: " << bytesPerVoxel << '\n';
-	// std::cout << "spacing.x: " << spacing.x << '\n';
-	// std::cout << "spacing.y: " << spacing.y << '\n';
-	// std::cout << "spacing.z: " << spacing.z << '\n';
-	// std::cout << "description: " << description << '\n';
-	// std::cout << "courtesy: " << courtesy << '\n';
-	// std::cout << "parameter: " << parameter << '\n';
-	// std::cout << "comment: " << comment << '\n';
+	std::cout << "dimx: " << dimx << '\n';
+	std::cout << "dimy: " << dimy << '\n';
+	std::cout << "dimz: " << dimz << '\n';
+	std::cout << "bytesPerVoxelbytes: " << bytesPerVoxel << '\n';
+	std::cout << "spacing.x: " << spacing.x << '\n';
+	std::cout << "spacing.y: " << spacing.y << '\n';
+	std::cout << "spacing.z: " << spacing.z << '\n';
+	std::cout << "description: " << description << '\n';
+	std::cout << "courtesy: " << courtesy << '\n';
+	std::cout << "parameter: " << parameter << '\n';
+	std::cout << "comment: " << comment << '\n';
 
 	unsigned x = 0;
 	unsigned y = 0;
 	unsigned z = 0;
+	float maxDataValue = 0.0f;
 
-	unsigned short *ptr = (unsigned short *)chardata;
+	switch (bytesPerVoxel)
+	{
+	case 1:
+		maxDataValue = 255.0f;
+		break;
+	case 2:
+		maxDataValue = 65535.0f;
+		break;
+	default:
+		maxDataValue = 255.0f;
+		break;
+	}
+
+	auto *ptr = (unsigned char *)chardata;
+
 	for (z = 0; z < dimz; z++)
 	{
 
@@ -248,8 +263,8 @@ void Volume::loadDataPVM(std::string filePath)
 		{
 			for (x = 0; x < dimx; x++)
 			{
-				unsigned short voxelData = *ptr;
-				float value = (float)voxelData / (8.0 * 65000.0f);
+				auto voxelData = *ptr;
+				float value = (float)voxelData / maxDataValue;
 				pixels[x + y * resolution.x] = value;
 				ptr++;
 			}

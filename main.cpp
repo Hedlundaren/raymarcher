@@ -57,15 +57,19 @@ int main()
 
 	// Volume data
 	Volume volume(256, 256, 256);
-	
+
 	volume.bindTexture();
-	
 	glfwSetWindowTitle(window, "Loading data...");
 
 	// volume.loadTestData();
 	// volume.loadDataPVM("data/DTI-B0.pvm");
-	volume.loadDataPVM("data/Bruce.pvm");
-	// volume.loadDataPVM("data/Fuel.pvm");
+	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
+	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
+	// volume.loadDataPVM("data/CT-Head.pvm");
+	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
+	 volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
+	//  volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
+	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
 	
 	glfwSetWindowTitle(window, "Marching time");
 
@@ -104,7 +108,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		screen_shader();
 		glViewport(0, 0, W, H);
-		screen_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		screen_shader.updateCommonUniforms(rotator, W, H, glfwGetTime());
 		
 		locator = glGetUniformLocation(screen_shader, "volumeTexture");
 		glUniform1i(locator, 0);
