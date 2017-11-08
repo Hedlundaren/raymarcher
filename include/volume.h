@@ -13,19 +13,22 @@
 #include "ddsbase.h"
 #include <stdlib.h>
 
+template<class T>
+T data_ptr;
+
 class Volume{
 
 public:
-    Volume(const int &size);
-    Volume(const int &x, const int &y, const int &z);
+    Volume() { };
 
     void bindTexture();
     void bindBuffer();
     void drawData(const int &x, const int &y, const int &z, const float &v);
     void drawData(const int &z, const std::vector<float> &pixels, const int &dimx, const int &dimy);
-    void loadTestData();
-
+    
     void InitTextures3D();
+
+    void loadTestData(const unsigned X, const unsigned Y, const unsigned Z);
     void loadDataPVM(std::string filePath);
     
     glm::vec4 readData(const int &x, const int &y, const int &z) const;
@@ -35,6 +38,4 @@ public:
 private:
     FramebufferFloat data;
     glm::ivec3 resolution;
-    int originalResolution;
-    
 };

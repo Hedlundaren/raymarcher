@@ -54,21 +54,20 @@ int main()
 	rotator.init(window);
 
 	// Volume data
-	Volume volume(256, 256, 256);
+	Volume volume;
 
-	volume.bindTexture();
 	glfwSetWindowTitle(window, "Loading data...");
-
-	volume.loadTestData();
+	
+	// volume.loadTestData(256, 256, 256);
 	// volume.loadDataPVM("data/DTI-B0.pvm");
 	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
 	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
 	// volume.loadDataPVM("data/CT-Head.pvm");
-	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
-	volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
+	volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
+	// volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
 	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
-
+	
 	glfwSetWindowTitle(window, "Marching time");
 
 	do

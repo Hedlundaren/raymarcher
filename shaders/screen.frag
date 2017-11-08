@@ -158,6 +158,8 @@ void transferFunction(inout vec4 data){
 		if(data.a > 0.8) data.xyz = vec3(0.8,0.8,0.7);
 		if(data.a < 0.1) data.a = 0.0;
 		else data.a *= 0.4;
+		
+
 }
 
 void main(void)
@@ -167,8 +169,8 @@ void main(void)
 	vec3 normal = vec3(0);
 	vec3 light = normalize(vec3 (1, 1, 1));
 
-	float x = 2.0 * gl_FragCoord.x/resolution.x - 1.0; // x, y => [-1, 1]
-	float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
+	// float x = 2.0 * gl_FragCoord.x/resolution.x - 1.0; // x, y => [-1, 1]
+	// float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
 	
 	// Pixel position
 	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
@@ -176,7 +178,7 @@ void main(void)
 	float stepSize = 0.001;
 	stepSize = 0.005;
 
-	float randomStart = 1.0 * rand(vec2(x, y)) * stepSize;
+	float randomStart = 1.0 * rand(enterPos.xy) * stepSize;
 	// randomStart = 0;
 
 	// Ray starting position

@@ -1,20 +1,5 @@
 #include "volume.h"
 
-Volume::Volume(const int &size)
-{
-	resolution = glm::ivec3(size);
-	int X = size * (int)ceil(sqrt((float)size));
-	int Y = size * (int)ceil(sqrt((float)size));
-	data.create(X, Y);
-}
-
-Volume::Volume(const int &x, const int &y, const int &z)
-{
-	resolution = glm::ivec3(x, y, z);
-	int X = resolution.x * (int)ceil(sqrt((float)resolution.z));
-	int Y = resolution.y * (int)ceil(sqrt((float)resolution.z));
-	data.create(X, Y);
-}
 
 void Volume::bindTexture()
 {
@@ -56,8 +41,14 @@ glm::vec3 Volume::getResolution() const
 	return resolution;
 }
 
-void Volume::loadTestData()
+void Volume::loadTestData(const unsigned X, const unsigned Y, const unsigned Z)
 {
+
+	resolution = glm::ivec3(X, Y, Z);
+	int frameBufferSizeX = resolution.x * (int)ceil(sqrt((float)resolution.z));
+	int frameBufferSizeY = resolution.y * (int)ceil(sqrt((float)resolution.z));
+	data.create(frameBufferSizeX, frameBufferSizeY);
+	data.bindTexture();
 
 	float TOTAL_ITERATIONS = this->getResolution().x * this->getResolution().y;
 
@@ -65,7 +56,7 @@ void Volume::loadTestData()
 	unsigned y = 0;
 	unsigned z = 0;
 	for (x = 0; x < this->getResolution().x; x++)
-	{	
+	{
 		std::vector<float> pixels(resolution.x * resolution.y);
 		for (y = 0; y < this->getResolution().y; y++)
 		{
@@ -82,10 +73,8 @@ void Volume::loadTestData()
 				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2.0, (resolution.y - 1) / 2.0, (resolution.z - 1) / 2.0);
 				if (length(middle - pos) < resolution.x * 0.3)
 				{
-					pixels[z + y*resolution.z] = 0.5;
+					pixels[z + y * resolution.z] = 0.5;
 				}
-
-				
 			}
 
 			float percentage = 100.0 * (y + this->getResolution().y * x) / TOTAL_ITERATIONS;
@@ -106,21 +95,6 @@ void Volume::loadTestData()
 	this->drawData(resolution.x - 1, resolution.y - 1, 0, 1.0);
 
 	this->drawData(resolution.x / 2, resolution.y / 2, resolution.z / 2, 1.0);
-}
-
-std::vector<std::string> Volume::split(std::string input, const std::string &delimiter)
-{
-
-	std::vector<std::string> tokens;
-	std::istringstream ss(input);
-	std::string token;
-
-	while (std::getline(ss, token, '='))
-	{
-		tokens.push_back(token);
-	}
-
-	return tokens;
 }
 
 void Volume::InitTextures3D()
@@ -229,6 +203,12 @@ void Volume::loadDataPVM(std::string filePath)
 	std::cout << "parameter: " << parameter << '\n';
 	std::cout << "comment: " << comment << '\n';
 
+	resolution = glm::ivec3(dimx, dimy, dimz);
+	int frameBufferSizeX = resolution.x * (int)ceil(sqrt((float)resolution.z));
+	int frameBufferSizeY = resolution.y * (int)ceil(sqrt((float)resolution.z));
+	data.create(frameBufferSizeX, frameBufferSizeY);
+	data.bindTexture();
+
 	unsigned x = 0;
 	unsigned y = 0;
 	unsigned z = 0;
@@ -238,30 +218,38 @@ void Volume::loadDataPVM(std::string filePath)
 	{
 	case 1:
 		maxDataValue = 255.0f;
+		data_ptr<unsigned char *> = (unsigned char *)chardata;
 		break;
 	case 2:
 		maxDataValue = 65535.0f;
+		data_ptr<unsigned short *> = (unsigned short *)chardata;
 		break;
 	default:
 		maxDataValue = 255.0f;
 		break;
 	}
 
-	auto *ptr = (unsigned char *)chardata;
-
+	// data_ptr = (unsigned char *)chardata;
 	for (z = 0; z < dimz; z++)
 	{
-
 		std::vector<float> pixels(resolution.x * resolution.y);
-
 		for (y = 0; y < dimy; y++)
 		{
 			for (x = 0; x < dimx; x++)
 			{
-				auto voxelData = *ptr;
-				float value = (float)voxelData / maxDataValue;
-				pixels[x + y * resolution.x] = value;
-				ptr++;
+				if(bytesPerVoxel == 1){
+					auto voxelData = *data_ptr<unsigned char *>;
+					float value = (float)voxelData / maxDataValue;
+					pixels[x + y * resolution.x] = value;
+					data_ptr<unsigned char *> ++;
+				}
+				else if(bytesPerVoxel == 2){
+					auto voxelData = *data_ptr<unsigned short *>;
+					float value = (float)voxelData / maxDataValue;
+					pixels[x + y * resolution.x] = value;
+					data_ptr<unsigned short *> ++;
+				}
+			
 			}
 
 			float percentage = 100.0 * z / (float)dimz;
