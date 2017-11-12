@@ -94,7 +94,7 @@ bool insideUnitCube(vec3 p){
 	return false;
 }
 
-vec4 readVolume(int x, int y, int z){
+vec4 readVolume(int x, int y, int z) {
 	vec4 voxel;
 	vec2 volumeCoord;
 	ivec2 texSize = textureSize(volumeTexture, 0);

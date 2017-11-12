@@ -29,10 +29,26 @@ void Volume::drawData(const int &z, const std::vector<float> &pixels, const int 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, X, Y, resolution.x, resolution.y, GL_RED, GL_FLOAT, pixels.data());
 }
 
-glm::vec4 Volume::readData(const int &x, const int &y, const int &z) const
+float Volume::readData(glm::vec3 p) const
 {
-	std::vector<glm::vec4> pixels(1);
-	glReadPixels(x + resolution.x * z, y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
+	std::vector<float> pixels(1);
+
+	glm::vec3 dataPosition = (p + glm::vec3(0.5));
+	dataPosition.x *= resolution.x; 
+	dataPosition.y *= resolution.y; 
+	dataPosition.z *= resolution.z; 
+	int x = (int) dataPosition.x;
+	int y = (int) dataPosition.y;
+	int z = (int) dataPosition.z;
+	return readData(x, y, z);
+}
+
+float Volume::readData(const int &x, const int &y, const int &z) const
+{
+	std::vector<float> pixels(1);
+	int X = x + (z % (int)ceil(sqrt((float)resolution.z))) * resolution.x;
+	int Y = y + ((int)(z / ceil(sqrt((float)resolution.z)))) * resolution.y;
+	glReadPixels(X, Y, 1, 1, GL_RED, GL_FLOAT, pixels.data());
 	return pixels[0];
 }
 
@@ -63,11 +79,14 @@ void Volume::loadTestData(const unsigned X, const unsigned Y, const unsigned Z)
 			for (z = 0; z < this->getResolution().z; z++)
 			{
 
-				// float v1 = rand() % 100;
-				// if (v1 > 0)
-				// {
-				// 	pixels[z + y*resolution.z] = 0.21;
-				// }
+				// pixels[z + y * resolution.z] = 0.5;
+
+				// std::cout << "coord: " << x << ", " << y << ", " << z << " " << "val: " << pixels[z + y * resolution.z] << std::endl;
+				// // float v1 = rand() % 100;
+				// // if (v1 > 0)
+				// // {
+				// // 	pixels[z + y*resolution.z] = 0.21;
+				// // }
 
 				glm::vec3 pos = glm::vec3(x, y, z);
 				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2.0, (resolution.y - 1) / 2.0, (resolution.z - 1) / 2.0);
@@ -83,18 +102,6 @@ void Volume::loadTestData(const unsigned X, const unsigned Y, const unsigned Z)
 		this->drawData(x, pixels, 0, 0);
 	}
 	std::cout << "Loading complete." << std::endl;
-
-	this->drawData(0, 0, 0, 1.0);
-	this->drawData(resolution.x - 1, 0, 0, 1.0);
-	this->drawData(0, 0, resolution.z - 1, 1.0);
-	this->drawData(resolution.x - 1, 0, resolution.z - 1, 1.0);
-
-	this->drawData(0, resolution.y - 1, resolution.z - 1, 1.0);
-	this->drawData(resolution.x - 1, resolution.y - 1, resolution.z - 1, 1.0);
-	this->drawData(0, resolution.x - 1, 0, 1.0);
-	this->drawData(resolution.x - 1, resolution.y - 1, 0, 1.0);
-
-	this->drawData(resolution.x / 2, resolution.y / 2, resolution.z / 2, 1.0);
 }
 
 void Volume::InitTextures3D()

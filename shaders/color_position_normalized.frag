@@ -13,7 +13,6 @@ void main()
 {
 
 
-	vec3 newPos = oldPos + vec3(0.5);
-	outColor = vec4(newPos, 1.0);
+	outColor = vec4(oldPos, 1.0);
 
 } 

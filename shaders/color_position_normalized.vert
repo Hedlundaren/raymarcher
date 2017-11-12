@@ -13,7 +13,7 @@ uniform mat4 P;
 
 void main() {
 	
-	vec3 newPos = (position);
+	vec3 newPos = (position - vec3(0.5));
 	oldPos = position;
 	// newPos.z *= 156.0/256.0;
 	newNormal = normal;

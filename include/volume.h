@@ -27,11 +27,11 @@ public:
     void drawData(const int &z, const std::vector<float> &pixels, const int &dimx, const int &dimy);
     
     void InitTextures3D();
-
     void loadTestData(const unsigned X, const unsigned Y, const unsigned Z);
     void loadDataPVM(std::string filePath);
     
-    glm::vec4 readData(const int &x, const int &y, const int &z) const;
+    float readData(glm::vec3 p) const;
+    float readData(const int &x, const int &y, const int &z) const;
     glm::vec3 getResolution() const;
     std::vector<std::string> split(std::string line, const std::string &delimiter);        
 

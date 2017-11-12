@@ -11,6 +11,7 @@
 #include "framebuffer.h"
 #include "quad.h"
 #include "sphere.h"
+#include "marchingmesh.h"
 #include "boundingcube.h"
 #include "colorcube.h"
 #include "volume.h"
@@ -29,12 +30,6 @@ int main()
 	w.init();
 	Clock clock = Clock(window);
 
-	// Define meshes
-	Quad quad = Quad();
-	Sphere sphere = Sphere(25, 25, 1.0f);
-	BoundingCube boundingCube;
-	ColorCube colorCube;
-
 	// Define screen
 	GLint locator;
 	Framebuffer screenBuffer = Framebuffer(W, H);
@@ -45,6 +40,7 @@ int main()
 	// Define shaders
 	ShaderProgram phong_shader("shaders/phong.vert", "", "", "", "shaders/phong.frag");
 	ShaderProgram cube_shader("shaders/cube.vert", "", "", "", "shaders/cube.frag");
+	ShaderProgram color_position_normalized_shader("shaders/color_position_normalized.vert", "", "", "", "shaders/color_position_normalized.frag");
 	ShaderProgram color_position_shader("shaders/color_position.vert", "", "", "", "shaders/color_position.frag");
 	ShaderProgram screen_shader("shaders/screen.vert", "", "", "", "shaders/screen.frag");
 	ShaderProgram post_shader("shaders/screen.vert", "", "", "", "shaders/post.frag");
@@ -57,17 +53,26 @@ int main()
 	Volume volume;
 
 	glfwSetWindowTitle(window, "Loading data...");
-	
-	// volume.loadTestData(256, 256, 256);
+
+
+	// volume.loadTestData(100, 100, 100);
 	// volume.loadDataPVM("data/DTI-B0.pvm");
 	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
 	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
 	// volume.loadDataPVM("data/CT-Head.pvm");
-	volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
-	// volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
+	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
+	volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
 	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
-	
+
+
+	// Define meshes
+	Quad quad = Quad();
+	Sphere sphere = Sphere(25, 25, 1.0f);
+	BoundingCube boundingCube;
+	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(10));
+	ColorCube colorCube;
+
 	glfwSetWindowTitle(window, "Marching time");
 
 	do
@@ -80,17 +85,18 @@ int main()
 		glFrontFace(GL_CW); // front face
 
 		rayEnterBuffer.bindBuffer();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		color_position_shader();
 		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
-		colorCube.draw();
+		mm.draw();
 
 		glFrontFace(GL_CCW); // back face
 
 		rayExitBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		color_position_shader();
-		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		color_position_normalized_shader();
+		color_position_normalized_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
 		colorCube.draw();
 
 		// Bounding box
@@ -100,42 +106,54 @@ int main()
 		cube_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
 		boundingCube.draw();
 
-		// Ray marcher
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDisable(GL_CULL_FACE);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		screen_shader();
-		glViewport(0, 0, W, H);
-		screen_shader.updateCommonUniforms(rotator, W, H, glfwGetTime());
 
-		locator = glGetUniformLocation(screen_shader, "volumeTexture");
-		glUniform1i(locator, 0);
-		glActiveTexture(GL_TEXTURE0);
-		volume.bindTexture();
+		// // Bounding box
+		// cubeBuffer.bindBuffer();
+		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// cube_shader();
+		// cube_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		// boundingCube.draw();
 
-		locator = glGetUniformLocation(screen_shader, "cubeTexture");
-		glUniform1i(locator, 1);
-		glActiveTexture(GL_TEXTURE1);
-		cubeBuffer.bindTexture();
+		// // Ray marcher
+		// glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// glDisable(GL_CULL_FACE);
+		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// screen_shader();
+		// glViewport(0, 0, W, H);
+		// screen_shader.updateCommonUniforms(rotator, W, H, glfwGetTime());
 
-		locator = glGetUniformLocation(screen_shader, "rayEnterTexture");
-		glUniform1i(locator, 2);
-		glActiveTexture(GL_TEXTURE2);
-		rayEnterBuffer.bindTexture();
+		// locator = glGetUniformLocation(screen_shader, "volumeTexture");
+		// glUniform1i(locator, 0);
+		// glActiveTexture(GL_TEXTURE0);
+		// volume.bindTexture();
 
-		locator = glGetUniformLocation(screen_shader, "rayExitTexture");
-		glUniform1i(locator, 3);
-		glActiveTexture(GL_TEXTURE3);
-		rayExitBuffer.bindTexture();
+		// locator = glGetUniformLocation(screen_shader, "cubeTexture");
+		// glUniform1i(locator, 1);
+		// glActiveTexture(GL_TEXTURE1);
+		// cubeBuffer.bindTexture();
 
-		// locator = glGetUniformLocation(screen_shader, "test");
-		// glUniform1i(locator, 4);
-		// glActiveTexture(GL_TEXTURE4);
-		// volume.InitTextures3D();
+		// locator = glGetUniformLocation(screen_shader, "rayEnterTexture");
+		// glUniform1i(locator, 2);
+		// glActiveTexture(GL_TEXTURE2);
+		// rayEnterBuffer.bindTexture();
 
-		locator = glGetUniformLocation(screen_shader, "volumeResolution");
-		glUniform3fv(locator, 1, &volume.getResolution()[0]);
-		quad.draw();
+		// locator = glGetUniformLocation(screen_shader, "rayExitTexture");
+		// glUniform1i(locator, 3);
+		// glActiveTexture(GL_TEXTURE3);
+		// rayExitBuffer.bindTexture();
+
+		// // locator = glGetUniformLocation(screen_shader, "test");
+		// // glUniform1i(locator, 4);
+		// // glActiveTexture(GL_TEXTURE4);
+		// // volume.InitTextures3D();
+
+		// locator = glGetUniformLocation(screen_shader, "volumeResolution");
+		// glUniform3fv(locator, 1, &volume.getResolution()[0]);
+		// quad.draw();
+
+		
+		
+		
 
 		// clock.toc();
 
