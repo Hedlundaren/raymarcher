@@ -64,7 +64,7 @@ void BoundingCube::draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBindVertexArray(quadVAO);
 	glPointSize(4.0);
-	glLineWidth(4.0);
+	glLineWidth(2.0);
 
 	// glGet with argument GL_LINE_WIDTH
 	// glGet with argument GL_ALIASED_LINE_WIDTH_RANGE

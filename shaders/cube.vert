@@ -10,6 +10,7 @@ out vec2 texCoord;
 
 uniform mat4 MV;
 uniform mat4 P;
+uniform vec2 yzRelativex;
 
 void main() {
 	
@@ -17,7 +18,9 @@ void main() {
 	oldPos = position;
 	newNormal = normal;
 	texCoord = uv;
-	// newPos.z *= 156.0/256.0;
+
+	newPos.y *= yzRelativex.x;
+	newPos.z *= yzRelativex.y;
 
     gl_Position = P * MV * vec4(newPos, 1.0f);
 }

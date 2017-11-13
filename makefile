@@ -19,26 +19,3 @@ main: $(INTERNAL_INCLUDES) $(EXTERNAL_INCLUDES)
 
 clean:
 	rm main
-
-
-# TODO Clean this up. Below looks clean. 
-
-# common_inc = ../common
-# glad_inc = $(common_inc)/glad
-# LINK_FLAGS = -lglfw3 -lopengl32 -lglu32 -lgdi32
-# INCLUDES = -I$(common_inc) -I$(glad_inc)
-
-# cpp_files = main.cpp
-# objects = $(cpp_files:.cpp=.o)
-# headers =
-
-# all: main.exe
-
-# main.exe: $(objects) glad.o
-# 	$(CXX) $(LIBRARIES) -o main.exe $(objects) glad.o $(LINK_FLAGS)
-
-# $(objects): %.o: %.cpp $(headers) makefile
-# 	$(CXX) $(COMPILE_FLAGS) $(INCLUDES) -c -o $@ $<
-
-# glad.o: glad.c
-# 	$(CC) $(COMPILE_FLAGS) $(INCLUDES) -c -o glad.o glad.c

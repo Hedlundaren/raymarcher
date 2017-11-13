@@ -57,9 +57,15 @@ glm::vec3 Volume::getResolution() const
 	return resolution;
 }
 
+glm::vec3 Volume::getSpacing() const
+{
+	return _spacing;
+}
+
 void Volume::loadTestData(const unsigned X, const unsigned Y, const unsigned Z)
 {
 
+	_spacing = glm::ivec3(1);
 	resolution = glm::ivec3(X, Y, Z);
 	int frameBufferSizeX = resolution.x * (int)ceil(sqrt((float)resolution.z));
 	int frameBufferSizeY = resolution.y * (int)ceil(sqrt((float)resolution.z));
@@ -130,6 +136,9 @@ void Volume::InitTextures3D()
 
 	float *floatBuffer = new float[dimy * dimz * dimx];
 
+	resolution = glm::vec3(dimx, dimy, dimz);
+	_spacing = spacing;
+
 	unsigned short *ptr = (unsigned short *)chardata;
 	for (unsigned nIndx = 0; nIndx < dimx * dimy * dimz; nIndx++)
 	{
@@ -192,6 +201,7 @@ void Volume::loadDataPVM(std::string filePath)
 	chardata = readPVMvolume(filePath.c_str(), &dimx, &dimy, &dimz, &bytesPerVoxel, &spacing.x,
 							 &spacing.y, &spacing.z, &description, &courtesy, &parameter, &comment);
 
+	
 	if (chardata == nullptr)
 	{
 		std::cout << "Could not read data.\n";
@@ -211,6 +221,7 @@ void Volume::loadDataPVM(std::string filePath)
 	std::cout << "comment: " << comment << '\n';
 
 	resolution = glm::ivec3(dimx, dimy, dimz-30);
+	_spacing = glm::ivec3((int) spacing.x, (int) spacing.y, (int) spacing.z);
 	int frameBufferSizeX = resolution.x * (int)ceil(sqrt((float)resolution.z));
 	int frameBufferSizeY = resolution.y * (int)ceil(sqrt((float)resolution.z));
 	data.create(frameBufferSizeX, frameBufferSizeY);

@@ -84,8 +84,9 @@ void MarchingMesh::createSurface()
 				v[6] = v[0] + glm::vec3(cubeSize.x, cubeSize.y, cubeSize.z);
 				v[7] = v[0] + glm::vec3(0, cubeSize.y, cubeSize.z);
 
-				bool allFilled = true;
+
 				bool allEmpty = true;
+				// bool allFilled = true;
 
 				for (auto vert : v)
 				{
@@ -96,7 +97,7 @@ void MarchingMesh::createSurface()
 					}
 					else
 					{
-						allFilled = false;
+						//allFilled = false;
 					}
 				}
 

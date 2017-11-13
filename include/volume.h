@@ -33,9 +33,11 @@ public:
     float readData(glm::vec3 p) const;
     float readData(const int &x, const int &y, const int &z) const;
     glm::vec3 getResolution() const;
+    glm::vec3 getSpacing() const;
     std::vector<std::string> split(std::string line, const std::string &delimiter);        
 
 private:
     FramebufferFloat data;
-    glm::ivec3 resolution;
+    glm::vec3 resolution;
+    glm::vec3 _spacing;
 };

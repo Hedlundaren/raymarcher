@@ -157,9 +157,7 @@ void transferFunction(inout vec4 data){
 		if(data.a > 0.6) data.xyz = vec3(0.6,0.5,.4);
 		if(data.a > 0.8) data.xyz = vec3(0.8,0.8,0.7);
 		if(data.a < 0.1) data.a = 0.0;
-		else data.a *= 0.4;
-		
-
+		else data.a *= 0.3;
 }
 
 void main(void)
@@ -176,7 +174,7 @@ void main(void)
 	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
 	vec3 exitPos = texture(rayExitTexture, texCoord).xyz;
 	float stepSize = 0.001;
-	stepSize = 0.005;
+	stepSize = 0.003;
 
 	float randomStart = 1.0 * rand(enterPos.xy) * stepSize;
 	// randomStart = 0;
@@ -238,5 +236,5 @@ void main(void)
 
 	outColor = v;// + boundingCube * boundingCubeColor;
 
-	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor + 0.0*texture(rayEnterTexture, texCoord);
 }

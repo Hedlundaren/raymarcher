@@ -54,41 +54,55 @@ int main()
 
 	glfwSetWindowTitle(window, "Loading data...");
 
-
 	// volume.loadTestData(100, 100, 100);
 	// volume.loadDataPVM("data/DTI-B0.pvm");
-	volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
+	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
 	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
 	// volume.loadDataPVM("data/CT-Head.pvm");
 	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
 	// volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
 	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
+	volume.loadDataPVM("data/CT-Knee.pvm"); 
 
-	float isoValue = 0.1; 
+	float dimx = volume.getResolution().x;
+	float dimy = volume.getResolution().y;
+	float dimz = volume.getResolution().z;
+	float spacingx = volume.getSpacing().x;
+	float spacingy = volume.getSpacing().y;
+	float spacingz = volume.getSpacing().z;
+	float yRelativex = (dimy / dimx) * (spacingy / spacingx);
+	float zRelativex = (dimz / dimx) * (spacingz / spacingx);
+	glm::vec2 yzRelativex = glm::vec2(yRelativex, zRelativex);
+
+	float isoValue = 0.1;
+
 	// Define meshes
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
 	BoundingCube boundingCube;
-	std::cout << "Marching...\n" << std::endl;
-	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(50), &isoValue);
+	std::cout << "Marching...\n"
+			  << std::endl;
+	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(40), &isoValue);
 	ColorCube colorCube;
 
 	glfwSetWindowTitle(window, "Marching time");
 
 	do
 	{
+
 		rotator.poll(window);
 		// // clock.tic();
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
-
 
 		glFrontFace(GL_CCW); // exit position
 		rayExitBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		color_position_normalized_shader();
 		color_position_normalized_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		locator = glGetUniformLocation(color_position_normalized_shader, "yzRelativex");
+		glUniform2fv(locator, 1, &yzRelativex[0]);
 		colorCube.draw();
 
 		glFrontFace(GL_CW); // enter position
@@ -96,6 +110,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		color_position_shader();
 		color_position_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		locator = glGetUniformLocation(color_position_shader, "yzRelativex");
+		glUniform2fv(locator, 1, &yzRelativex[0]);
 		mm.draw();
 
 		// Bounding box
@@ -103,6 +119,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		cube_shader();
 		cube_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
+		locator = glGetUniformLocation(cube_shader, "yzRelativex");
+		glUniform2fv(locator, 1, &yzRelativex[0]);
 		boundingCube.draw();
 
 		// Ray marcher
@@ -122,7 +140,7 @@ int main()
 		glUniform1i(locator, 1);
 		glActiveTexture(GL_TEXTURE1);
 		cubeBuffer.bindTexture();
-		
+
 		locator = glGetUniformLocation(screen_shader, "rayExitTexture");
 		glUniform1i(locator, 2);
 		glActiveTexture(GL_TEXTURE2);
@@ -141,10 +159,6 @@ int main()
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
 		quad.draw();
-
-		
-		
-		
 
 		// clock.toc();
 

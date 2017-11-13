@@ -1,6 +1,5 @@
 Ideas
 =====================
-Framebuffer should take volumes > 100^3
 Store unsigned data positions
 Precalculate shader variables
 Rotation with quaternions
@@ -12,10 +11,13 @@ Nyquist sampling rate >= 2 samples per voxel (adaptive sampling)
 
 Finished
 =====================
+Marching cubes for entering position
+Framebuffer should take volumes > 100^3
 Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
 Remove unnecessary uniforms
 random start depends on stepsize
 Bounding Cube
+Adaptive data type and size
 
 Comments
 ===================================
