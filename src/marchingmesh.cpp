@@ -1,7 +1,7 @@
 #include "marchingmesh.h"
 
-MarchingMesh::MarchingMesh(Volume volData, glm::ivec3 gridRes)
-	: gridResolution(gridRes), data(volData)
+MarchingMesh::MarchingMesh(Volume volData, glm::ivec3 gridRes, float *isoVal)
+	: gridResolution(gridRes), data(volData), isoValue(isoVal)
 {
 	createSurface();
 }
@@ -46,8 +46,13 @@ void MarchingMesh::createQuad(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec
 	normals.push_back(normal);
 }
 
+
+
 void MarchingMesh::createSurface()
 {
+	vertices.clear();
+	indices.clear();
+	normals.clear();
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -64,33 +69,51 @@ void MarchingMesh::createSurface()
 			for (int x = 0; x < gridResolution.x; x++)
 			{
 
-				glm::vec3 v0;
-				v0.x = (float)x / gridResolution.x - 0.5f;
-				v0.y = (float)y / gridResolution.y - 0.5f;
-				v0.z = (float)z / gridResolution.z - 0.5f;
-				
 				data.bindBuffer();
-				if (data.readData(v0) > 0.1)
+				glm::vec3 v[8];
+
+				v[0].x = (float)x / gridResolution.x - 0.5f;
+				v[0].y = (float)y / gridResolution.y - 0.5f;
+				v[0].z = (float)z / gridResolution.z - 0.5f;
+
+				v[1] = v[0] + glm::vec3(0, cubeSize.y, 0);
+				v[2] = v[0] + glm::vec3(cubeSize.x, cubeSize.y, 0);
+				v[3] = v[0] + glm::vec3(cubeSize.x, 0, 0);
+				v[4] = v[0] + glm::vec3(0, 0, cubeSize.z);
+				v[5] = v[0] + glm::vec3(cubeSize.x, 0, cubeSize.z);
+				v[6] = v[0] + glm::vec3(cubeSize.x, cubeSize.y, cubeSize.z);
+				v[7] = v[0] + glm::vec3(0, cubeSize.y, cubeSize.z);
+
+				bool allFilled = true;
+				bool allEmpty = true;
+
+				for (auto vert : v)
 				{
-					
 
-					glm::vec3 v1 = v0 + glm::vec3(0, cubeSize.y, 0);
-					glm::vec3 v2 = v0 + glm::vec3(cubeSize.x, cubeSize.y, 0);
-					glm::vec3 v3 = v0 + glm::vec3(cubeSize.x, 0, 0);
-					glm::vec3 v4 = v0 + glm::vec3(0, 0, cubeSize.z);
-					glm::vec3 v5 = v0 + glm::vec3(cubeSize.x, 0, cubeSize.z);
-					glm::vec3 v6 = v0 + glm::vec3(cubeSize.x, cubeSize.y, cubeSize.z);
-					glm::vec3 v7 = v0 + glm::vec3(0, cubeSize.y, cubeSize.z);
+					if (data.readData(vert) > *isoValue)
+					{
+						allEmpty = false;
+					}
+					else
+					{
+						allFilled = false;
+					}
+				}
 
-					createQuad(v0, v1, v2, v3);
-					createQuad(v0, v3, v5, v4);
-					createQuad(v3, v2, v6, v5);
-					createQuad(v2, v1, v7, v6);
-					createQuad(v0, v4, v7, v1);
-					createQuad(v4, v5, v6, v7); 
+				if (!allEmpty)
+				{
+					createQuad(v[0], v[1], v[2], v[3]);
+					createQuad(v[0], v[3], v[5], v[4]);
+					createQuad(v[3], v[2], v[6], v[5]);
+					createQuad(v[2], v[1], v[7], v[6]);
+					createQuad(v[0], v[4], v[7], v[1]);
+					createQuad(v[4], v[5], v[6], v[7]);
 				}
 			}
 		}
+	
+		float percentage = 100.0 * z / gridResolution.z;
+		std::cout << (percentage) << "% \r";
 	}
 
 	// Model vertices
@@ -143,7 +166,6 @@ void MarchingMesh::createSurface()
 
 void MarchingMesh::draw()
 {
-	glLineWidth(2.0);
 
 	//Draw Object
 	glEnableClientState(GL_VERTEX_ARRAY);

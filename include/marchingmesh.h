@@ -13,7 +13,7 @@
 class MarchingMesh
 {
 public:
-	MarchingMesh(const Volume data, glm::ivec3 gridRes = glm::ivec3(10,10,10));
+	MarchingMesh(const Volume data, glm::ivec3 gridRes = glm::ivec3(10,10,10), float *isoVal = 0);
 	void createSurface();
 	void draw();
 
@@ -30,4 +30,5 @@ private:
 	GLuint VAO, VBO, IBO, normalbuffer, UVBO;
 	glm::ivec3 gridResolution;
 	Volume &data;
+	float *isoValue;
 };

@@ -160,7 +160,6 @@ void ColorCube::create_cube() {
 }
 
 void ColorCube::draw() {
-	glLineWidth(2.0);
 
 	//Draw Object
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -183,5 +182,6 @@ void ColorCube::draw() {
 	);
 
 	glBindVertexArray(0);
+
 
 }

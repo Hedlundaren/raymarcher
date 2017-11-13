@@ -7,8 +7,8 @@ out vec4 outColor;
 
 uniform sampler2D volumeTexture;
 uniform sampler2D cubeTexture;
-uniform sampler2D rayEnterTexture;
 uniform sampler2D rayExitTexture;
+uniform sampler2D rayEnterTexture;
 uniform sampler3D test;
 
 uniform vec2 resolution;
@@ -193,9 +193,10 @@ void main(void)
 	vec4 boundingCubeColor = vec4(0.1, 0.1, 0.1, 1);
 	 
 	
+	
 	for(int i = 0; i < MAX_MARCHING_STEPS; i++){
 
-		if(v.a > 1.0) break;
+		if(v.a > 1.0 || length(enterPos) < EPSILON) break;
 
 		// float dist = sceneSDF(ray);
 
@@ -229,6 +230,10 @@ void main(void)
 			}
 		} 
 	}
+
+		if(length(enterPos) < EPSILON && texture(cubeTexture, texCoord).a != 0){
+			boundingCube = vec4(1.0);
+		} 
 
 
 	outColor = v;// + boundingCube * boundingCubeColor;

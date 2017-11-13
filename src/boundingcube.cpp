@@ -73,4 +73,7 @@ void BoundingCube::draw() {
 	// glIsEnabled with argument GL_LINE_SMOOTH
 	glDrawArrays(GL_LINES, 0, 32);
 	glBindVertexArray(0);
+
+
+	
 }
