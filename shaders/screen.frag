@@ -16,13 +16,13 @@ uniform vec3 volumeResolution;
 uniform float time;
 uniform vec3 camPos;
 
-const float cubeSize = 		1.0;
-const float borderLeft = 	0.0;
-const float borderRight = 	cubeSize;
-const float borderDown = 	0.0;
-const float borderUp = 		cubeSize;
-const float borderNear = 	0.0;
-const float borderFar = 	cubeSize;
+float cubeSize = 		1.0;
+float borderLeft = 	0.0;
+float borderRight = 	cubeSize;
+float borderDown = 	0.0;
+float borderUp = 		cubeSize;
+float borderNear = 	0.0;
+float borderFar = 	cubeSize;
 
 const float EPSILON = 0.016;
 #define PI 3.14159265359
@@ -154,10 +154,10 @@ void transferFunction(inout vec4 data){
 
 		if(data.a > 0.1) data.xyz = vec3(0.6,0.2,0.2);
 		if(data.a > 0.3) data.xyz = vec3(0.63,0.46,.34);
-		if(data.a > 0.6) data.xyz = vec3(0.6,0.5,.4);
-		if(data.a > 0.8) data.xyz = vec3(0.8,0.8,0.7);
+		if(data.a > 0.6) data.xyz = vec3(0.6,0.5,0.4);
+		if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
 		if(data.a < 0.1) data.a = 0.0;
-		else data.a *= 0.3;
+		else data.a *= 0.4;
 }
 
 void main(void)
@@ -212,9 +212,9 @@ void main(void)
 
 		ray += stepSize * rayDirection;
 		normal = estimateNormal(ray);
-		float ambient = 0.4;
+		float ambient = 0.2;
 		float diffuse = 0.4*max(dot(normal, light), 0.0);
-		float specular = 0.4 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
+		float specular = 0.8 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
 		vec4 data = readVolume(ray.x, ray.y, ray.z);
 		transferFunction(data);
 		

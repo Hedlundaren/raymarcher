@@ -84,16 +84,6 @@ void Volume::loadTestData(const unsigned X, const unsigned Y, const unsigned Z)
 		{
 			for (z = 0; z < this->getResolution().z; z++)
 			{
-
-				// pixels[z + y * resolution.z] = 0.5;
-
-				// std::cout << "coord: " << x << ", " << y << ", " << z << " " << "val: " << pixels[z + y * resolution.z] << std::endl;
-				// // float v1 = rand() % 100;
-				// // if (v1 > 0)
-				// // {
-				// // 	pixels[z + y*resolution.z] = 0.21;
-				// // }
-
 				glm::vec3 pos = glm::vec3(x, y, z);
 				glm::vec3 middle = glm::vec3((resolution.x - 1) / 2.0, (resolution.y - 1) / 2.0, (resolution.z - 1) / 2.0);
 				if (length(middle - pos) < resolution.x * 0.3)

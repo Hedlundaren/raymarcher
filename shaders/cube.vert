@@ -12,6 +12,31 @@ uniform mat4 MV;
 uniform mat4 P;
 uniform vec2 yzRelativex;
 
+float cubeSize = 		1.0;
+float borderLeft = 	0.0;
+float borderRight = 	cubeSize;
+float borderDown = 	0.0;
+float borderUp = 		cubeSize;
+float borderNear = 	0.0;
+float borderFar = 	cubeSize;
+
+bool insideUnitCube(vec3 p){
+	if(
+		p.x < borderLeft ||
+		p.x > borderRight ||
+		p.y < borderDown ||
+		p.y > borderUp ||
+		p.z < borderNear ||
+		p.z > borderFar
+	){
+		return false;
+	}else{
+		return true;
+	}
+
+	return false;
+}
+
 void main() {
 	
 	vec3 newPos = position - vec3(0.5);

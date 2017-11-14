@@ -15,6 +15,7 @@
 #include "boundingcube.h"
 #include "colorcube.h"
 #include "volume.h"
+#include "gui.h"
 
 #define W 1920 / 2
 #define H 1080 / 2
@@ -23,7 +24,6 @@ int main()
 {
 
 	std::cout << "======== Marching Time =========" << std::endl;
-
 	// Define window
 	GLFWwindow *window = nullptr;
 	Window w = Window(window, W, H);
@@ -32,7 +32,7 @@ int main()
 
 	// Define screen
 	GLint locator;
-	Framebuffer screenBuffer = Framebuffer(W, H);
+	Framebuffer volumeRenderBuffer = Framebuffer(W, H);
 	Framebuffer cubeBuffer = Framebuffer(W, H);
 	Framebuffer rayEnterBuffer = Framebuffer(W, H);
 	Framebuffer rayExitBuffer = Framebuffer(W, H);
@@ -43,18 +43,21 @@ int main()
 	ShaderProgram color_position_normalized_shader("shaders/color_position_normalized.vert", "", "", "", "shaders/color_position_normalized.frag");
 	ShaderProgram color_position_shader("shaders/color_position.vert", "", "", "", "shaders/color_position.frag");
 	ShaderProgram screen_shader("shaders/screen.vert", "", "", "", "shaders/screen.frag");
-	ShaderProgram post_shader("shaders/screen.vert", "", "", "", "shaders/post.frag");
+	ShaderProgram final_shader("shaders/final.vert", "", "", "", "shaders/final.frag");
 
 	// Controls
 	MouseRotator rotator;
 	rotator.init(window);
+
+	// GUI
+	GUI gui = GUI(W, H);
 
 	// Volume data
 	Volume volume;
 
 	glfwSetWindowTitle(window, "Loading data...");
 
-	// volume.loadTestData(100, 100, 100);
+	// // // volume.loadTestData(100, 100, 100);
 	// volume.loadDataPVM("data/DTI-B0.pvm");
 	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
 	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
@@ -63,7 +66,7 @@ int main()
 	// volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
 	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
-	volume.loadDataPVM("data/CT-Knee.pvm"); 
+	volume.loadDataPVM("data/CT-Knee.pvm");
 
 	float dimx = volume.getResolution().x;
 	float dimy = volume.getResolution().y;
@@ -81,17 +84,23 @@ int main()
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
 	BoundingCube boundingCube;
-	std::cout << "Marching...\n"
-			  << std::endl;
-	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(40), &isoValue);
+	std::cout << "Marching...\n" << std::endl;
+	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(10), &isoValue);
 	ColorCube colorCube;
 
 	glfwSetWindowTitle(window, "Marching time");
+	glm::vec2 cursorPos;
 
 	do
 	{
 
+		double cursorX, cursorY;
+		glfwGetCursorPos(window, &cursorX, &cursorY);
+		cursorPos.x = cursorX / W;
+		cursorPos.y = cursorY / H;
+
 		rotator.poll(window);
+
 		// // clock.tic();
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
@@ -121,10 +130,12 @@ int main()
 		cube_shader.updateCommonUniforms(rotator, W, H, clock.getTime());
 		locator = glGetUniformLocation(cube_shader, "yzRelativex");
 		glUniform2fv(locator, 1, &yzRelativex[0]);
+		locator = glGetUniformLocation(cube_shader, "cursorPos");
+		glUniform2fv(locator, 1, &cursorPos[0]);
 		boundingCube.draw();
 
 		// Ray marcher
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		volumeRenderBuffer.bindBuffer();
 		glDisable(GL_CULL_FACE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		screen_shader();
@@ -158,6 +169,28 @@ int main()
 
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
+		quad.draw();
+
+		// FINAL COMPOSITING
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_CULL_FACE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		final_shader();
+		glViewport(0, 0, W, H);
+		final_shader.updateCommonUniforms(rotator, W, H, glfwGetTime());
+
+		locator = glGetUniformLocation(final_shader, "volumeRender");
+		glUniform1i(locator, 0);
+		glActiveTexture(GL_TEXTURE0);
+		volumeRenderBuffer.bindTexture();
+		
+		locator = glGetUniformLocation(final_shader, "controlPointValues");
+		glUniform1i(locator, 1);
+		glActiveTexture(GL_TEXTURE1);
+		// gui.bindControlPointValueBuffer();
+		rayExitBuffer.bindTexture();
+
 		quad.draw();
 
 		// clock.toc();

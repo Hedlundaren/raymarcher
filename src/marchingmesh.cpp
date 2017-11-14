@@ -62,6 +62,7 @@ void MarchingMesh::createSurface()
 
 	glm::vec3 cubeSize = glm::vec3(1.0 / gridResolution.x, 1.0 / gridResolution.y, 1.0 / gridResolution.z);
 
+	data.bindBuffer();
 	for (int z = 0; z < gridResolution.z; z++)
 	{
 		for (int y = 0; y < gridResolution.y; y++)
@@ -69,7 +70,6 @@ void MarchingMesh::createSurface()
 			for (int x = 0; x < gridResolution.x; x++)
 			{
 
-				data.bindBuffer();
 				glm::vec3 v[8];
 
 				v[0].x = (float)x / gridResolution.x - 0.5f;
@@ -87,10 +87,8 @@ void MarchingMesh::createSurface()
 
 				bool allEmpty = true;
 				// bool allFilled = true;
-
 				for (auto vert : v)
 				{
-
 					if (data.readData(vert) > *isoValue)
 					{
 						allEmpty = false;
