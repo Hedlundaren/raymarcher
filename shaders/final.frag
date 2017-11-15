@@ -14,6 +14,8 @@ uniform sampler2D volumeRender;
 uniform sampler2D controlPointValues;
 uniform sampler2D controlPointPositions;
 uniform float numberOfControlPoints;
+uniform float hoveredControlPoint;
+uniform float selectedControlPoint;
 
 float pointSize = 7.0;
 float TF_height = 0.3;
@@ -21,10 +23,10 @@ float TF_opacity = 0.7;
 vec4 TF_background = vec4(0.47); 
 
 
-void drawPoint(inout vec4 color, vec2 point, vec4 pointColor) {
+void drawPoint(inout vec4 color, vec2 point, vec4 pointColor, float type) {
 
     point.y *= TF_height;
-    if(length(resolution * (point - texCoord))  < pointSize) color = vec4(0.8);
+    if(length(resolution * (point - texCoord))  < pointSize) color = vec4(0.8 - type * 0.1);
     if(length(resolution * (point - texCoord))  < pointSize*0.7) color = pointColor;
 
 }
@@ -38,7 +40,11 @@ vec4 getControlPointValue(float id, sampler2D type) {
 void setControlPoints(inout vec4 color){
 
     for(float id = 0; id < 4; id++) {
-        drawPoint(color, getControlPointValue(id, controlPointPositions).xy, getControlPointValue(id, controlPointValues));
+        float type = 0;
+
+        if(id == hoveredControlPoint) type = 1.0;
+        if(id == selectedControlPoint) type = 2.0;
+        drawPoint(color, getControlPointValue(id, controlPointPositions).xy, getControlPointValue(id, controlPointValues), type);
     }
 }
 

@@ -82,23 +82,16 @@ int main()
 	Sphere sphere = Sphere(25, 25, 1.0f);
 	BoundingCube boundingCube;
 	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(10), &isoValue);
-	
+
 	ColorCube colorCube;
 
 	// GUI
 	GUI gui = GUI(W, H);
 
 	glfwSetWindowTitle(window, "Marching time");
-	glm::vec2 cursorPos;
 
 	do
 	{
-
-		double cursorX, cursorY;
-		glfwGetCursorPos(window, &cursorX, &cursorY);
-		cursorPos.x = cursorX / W;
-		cursorPos.y = cursorY / H;
-
 		rotator.poll(window);
 
 		// // clock.tic();
@@ -131,7 +124,7 @@ int main()
 		locator = glGetUniformLocation(cube_shader, "yzRelativex");
 		glUniform2fv(locator, 1, &yzRelativex[0]);
 		locator = glGetUniformLocation(cube_shader, "cursorPos");
-		glUniform2fv(locator, 1, &cursorPos[0]);
+		glUniform2fv(locator, 1, &gui.getCursorPos()[0]);
 		boundingCube.draw();
 
 		// Ray marcher
@@ -184,7 +177,7 @@ int main()
 		glUniform1i(locator, 0);
 		glActiveTexture(GL_TEXTURE0);
 		volumeRenderBuffer.bindTexture();
-		
+
 		locator = glGetUniformLocation(final_shader, "controlPointValues");
 		glUniform1i(locator, 1);
 		glActiveTexture(GL_TEXTURE1);
@@ -197,14 +190,16 @@ int main()
 
 		locator = glGetUniformLocation(final_shader, "numberOfControlPoints");
 		glProgramUniform1f(final_shader, locator, gui.getNumberOfControlPoints());
-
+		locator = glGetUniformLocation(final_shader, "hoveredControlPoint");
+		glProgramUniform1f(final_shader, locator, gui.getHoveredControlPoint());
+		locator = glGetUniformLocation(final_shader, "selectedControlPoint");
+		glProgramUniform1f(final_shader, locator, gui.getSelectedControlPoint());
 
 		quad.draw();
 
 		// clock.toc();
 
 		gui.update(window);
-		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
