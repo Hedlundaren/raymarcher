@@ -23,6 +23,7 @@ random start depends on stepsize
 Bounding Cube
 Adaptive data type and size
 Marching cubes for entering position
+Actions with respect to time inbetween
 
 Comments
 ===================================

@@ -8,32 +8,40 @@
 class GUI
 {
 
-  public:
-    GUI(const float &w, const float &h);
-    void bindControlPointValueTexture();
-    void bindControlPointPositionTexture();
-    float getNumberOfControlPoints();
-    float getSelectedControlPoint();
-    float getHoveredControlPoint();
-    glm::vec2 getCursorPos();
-    glm::vec2 getCursorPosTF();
-    void update(GLFWwindow *&window);
+public:
+  GUI(const float &w, const float &h);
+  float isActive();
+  void bindControlPointValueTexture();
+  void bindControlPointPositionTexture();
+  float getNumberOfControlPoints();
+  float getNumberOfActiveControlPoints();
+  float getSelectedControlPoint();
+  float getHoveredControlPoint();
+  glm::vec2 getCursorPos();
+  glm::vec2 getCursorPosTF();
+  void deleteControlPoint(int id);
 
-  private:
-    void initControlPoints();
-    void drawData(const std::vector<glm::vec4> &pixels, Framebuffer &buffer);
+  void update(GLFWwindow *&window);
 
-    const int numberOfControlPoints = 10;
-    Framebuffer controlPointValueBuffer = Framebuffer(10, 1);
-    Framebuffer controlPointPositionBuffer = Framebuffer(10, 1);
-    glm::ivec2 resolution;
+private:
+  float guiActive = 1.0f;
+  void initControlPoints();
+  void drawData(const std::vector<glm::vec4> &pixels, Framebuffer &buffer);
 
-    std::vector<glm::vec4> controlPointValues;
-    std::vector<glm::vec4> controlPointPositions;
-    int selectedControlPoint = -1;
-    int hoveredControlPoint = -1;
+  const int numberOfControlPoints = 10;
+  int numberOfActiveControlPoints = 4;
+  Framebuffer controlPointValueBuffer = Framebuffer(10, 1);
+  Framebuffer controlPointPositionBuffer = Framebuffer(10, 1);
+  glm::ivec2 resolution;
 
-	glm::vec2 cursorPos;
-	glm::vec2 cursorPosTF;
+  std::vector<glm::vec4> controlPointValues;
+  std::vector<glm::vec4> controlPointPositions;
+  int selectedControlPoint = -1;
+  int hoveredControlPoint = -1;
+  float timeAtInteraction = 0.0f;
+  float timeSinceInteraction = 0.0f;
+  const float maxTimeBetweenInteractions = 0.3f;
 
+  glm::vec2 cursorPos;
+  glm::vec2 cursorPosTF;
 };

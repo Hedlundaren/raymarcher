@@ -89,10 +89,22 @@ int main()
 	GUI gui = GUI(W, H);
 
 	glfwSetWindowTitle(window, "Marching time");
+	glfwSetTime(0.0);
 
 	do
 	{
-		rotator.poll(window);
+
+		if (gui.getCursorPosTF().y > 1.0)
+		{
+			rotator.poll(window);
+		}
+		else
+		{
+			if (!gui.isActive())
+			{
+				rotator.poll(window);
+			}
+		}
 
 		// // clock.tic();
 		glEnable(GL_CULL_FACE);
@@ -190,10 +202,14 @@ int main()
 
 		locator = glGetUniformLocation(final_shader, "numberOfControlPoints");
 		glProgramUniform1f(final_shader, locator, gui.getNumberOfControlPoints());
+		locator = glGetUniformLocation(final_shader, "numberOfActiveControlPoints");
+		glProgramUniform1f(final_shader, locator, gui.getNumberOfActiveControlPoints());
 		locator = glGetUniformLocation(final_shader, "hoveredControlPoint");
 		glProgramUniform1f(final_shader, locator, gui.getHoveredControlPoint());
 		locator = glGetUniformLocation(final_shader, "selectedControlPoint");
 		glProgramUniform1f(final_shader, locator, gui.getSelectedControlPoint());
+		locator = glGetUniformLocation(final_shader, "guiActive");
+		glProgramUniform1f(final_shader, locator, gui.isActive());
 
 		quad.draw();
 

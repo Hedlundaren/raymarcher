@@ -6,6 +6,9 @@ GUI::GUI(const float &w, const float &h)
     initControlPoints();
 }
 
+float GUI::isActive(){
+    return guiActive;
+}
 void GUI::bindControlPointValueTexture()
 {
     controlPointValueBuffer.bindTexture();
@@ -54,6 +57,11 @@ float GUI::getNumberOfControlPoints()
     return (float)numberOfControlPoints;
 }
 
+float GUI::getNumberOfActiveControlPoints()
+{
+    return (float)numberOfActiveControlPoints;
+}
+
 float GUI::getSelectedControlPoint()
 {
     return (float)selectedControlPoint;
@@ -69,47 +77,95 @@ glm::vec2 GUI::getCursorPos()
     return cursorPos;
 }
 
+glm::vec2 GUI::getCursorPosTF()
+{
+    return cursorPosTF;
+}
+
+void GUI::deleteControlPoint(int id)
+{
+    controlPointValues.erase(controlPointValues.begin() + id);
+    controlPointPositions.erase(controlPointPositions.begin() + id);
+    numberOfActiveControlPoints--;
+}
+
 void GUI::update(GLFWwindow *&window)
 {
+
+    timeSinceInteraction = glfwGetTime() - timeAtInteraction;
 
     // int alt = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
     // int esc = glfwGetKey(window, GLFW_KEY_ESCAPE);
     int currentLeft = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    int currentRight = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
     int ctrl = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
     int S = glfwGetKey(window, GLFW_KEY_S);
+    int H = glfwGetKey(window, GLFW_KEY_H);
 
-    if (ctrl && S)
+    if (ctrl && S && timeSinceInteraction > maxTimeBetweenInteractions){
+        timeAtInteraction = glfwGetTime();
         std::cout << "Saved.\n";
+    }
 
-    double cursorX, cursorY;
-    glfwGetCursorPos(window, &cursorX, &cursorY);
-    cursorPos.x = cursorX / (float)resolution.x;
-    cursorPos.y = cursorY / (float)resolution.y;
-    cursorPosTF.x = cursorPos.x;
-    cursorPosTF.y = (1.0 - cursorPos.y) / 0.3;
+    if (H && timeSinceInteraction > maxTimeBetweenInteractions) {
+        timeAtInteraction = glfwGetTime();
+        if(guiActive) guiActive = 0.0;
+        else guiActive = 1.0;
+    }
 
-    bool hoveringControlPoint = false;
-    for (int id = 0; id < numberOfControlPoints; id++)
+    if (guiActive)
     {
-        if (length(cursorPosTF - glm::vec2(controlPointPositions[id].x, controlPointPositions[id].y)) < 0.05)
+
+        double cursorX, cursorY;
+        glfwGetCursorPos(window, &cursorX, &cursorY);
+        cursorPos.x = cursorX / (float)resolution.x;
+        cursorPos.y = cursorY / (float)resolution.y;
+        cursorPosTF.x = cursorPos.x;
+        cursorPosTF.y = (1.0 - cursorPos.y) / 0.3;
+
+        bool hoveringControlPoint = false;
+        for (int id = 0; id < numberOfControlPoints; id++)
         {
-            hoveredControlPoint = id;
-            hoveringControlPoint = true;
+            if (length(cursorPosTF - glm::vec2(controlPointPositions[id].x, controlPointPositions[id].y)) < 0.05)
+            {
+                hoveredControlPoint = id;
+                hoveringControlPoint = true;
+                if (currentLeft)
+                {
+                    selectedControlPoint = id;
+                }
+            }
+        }
+        if (!hoveringControlPoint)
+        {
+            hoveredControlPoint = -1;
             if (currentLeft)
-                selectedControlPoint = id;
+            {
+                selectedControlPoint = -1;
+            }
         }
-    }
-    if (!hoveringControlPoint)
-    {
-        hoveredControlPoint = -1;
-        if (currentLeft){
-            selectedControlPoint = -1;
+        else
+        {
+            if (currentRight && timeSinceInteraction > maxTimeBetweenInteractions)
+            {
+                deleteControlPoint(hoveredControlPoint);
+                timeAtInteraction = glfwGetTime();
+            }
+
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
+            {
+                controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, cursorPosTF.y, 0.0, 0.0);
+            }
+            else
+            {
+
+            }
         }
+
+        // std::cout << std::flush;
+        // std::cout << selectedControlPoint << "\n";
+
+        drawData(controlPointValues, controlPointValueBuffer);
+        drawData(controlPointPositions, controlPointPositionBuffer);
     }
-
-    std::cout << std::flush;
-    std::cout << selectedControlPoint << "\n";
-
-    drawData(controlPointValues, controlPointValueBuffer);
-    drawData(controlPointPositions, controlPointPositionBuffer);
 }
