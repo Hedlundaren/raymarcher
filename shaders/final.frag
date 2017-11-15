@@ -13,11 +13,13 @@ uniform vec2 resolution;
 uniform sampler2D volumeRender;
 uniform sampler2D controlPointValues;
 uniform sampler2D controlPointPositions;
+uniform sampler2D colorPicker;
 uniform float numberOfControlPoints;
 uniform float numberOfActiveControlPoints;
 uniform float hoveredControlPoint;
 uniform float selectedControlPoint;
 uniform float guiActive;
+uniform float guiColorPickActive;
 
 const float EPSILON = 0.0001;
 vec4 lineColor = vec4(0.6);
@@ -73,9 +75,15 @@ void main()
     
     if(texCoord.y < TF_height && guiActive > 0.5) {
         
+    
         finalColor = TF_opacity * TF_background + (1.0-TF_opacity) * screenVolumeRender;
         drawLines(finalColor);
         setControlPoints(finalColor);
+
+        if(guiColorPickActive > 0.5) { 
+            finalColor = mix(texture(colorPicker, texCoord), finalColor, 0.0);
+        }
+ 
     }
 
     

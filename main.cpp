@@ -36,6 +36,7 @@ int main()
 	Framebuffer cubeBuffer = Framebuffer(W, H);
 	Framebuffer rayEnterBuffer = Framebuffer(W, H);
 	Framebuffer rayExitBuffer = Framebuffer(W, H);
+	Framebuffer colorPickBuffer = Framebuffer(W, H);
 
 	// Define shaders
 	ShaderProgram phong_shader("shaders/phong.vert", "", "", "", "shaders/phong.frag");
@@ -43,6 +44,7 @@ int main()
 	ShaderProgram color_position_normalized_shader("shaders/color_position_normalized.vert", "", "", "", "shaders/color_position_normalized.frag");
 	ShaderProgram color_position_shader("shaders/color_position.vert", "", "", "", "shaders/color_position.frag");
 	ShaderProgram screen_shader("shaders/screen.vert", "", "", "", "shaders/screen.frag");
+	ShaderProgram color_pick_shader("shaders/color_pick.vert", "", "", "", "shaders/color_pick.frag");
 	ShaderProgram final_shader("shaders/final.vert", "", "", "", "shaders/final.frag");
 
 	// Controls
@@ -106,11 +108,10 @@ int main()
 			}
 		}
 
-		// // clock.tic();
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
-		glFrontFace(GL_CCW); // exit position
+		glFrontFace(GL_CCW); 
 		rayExitBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		color_position_normalized_shader();
@@ -119,7 +120,7 @@ int main()
 		glUniform2fv(locator, 1, &yzRelativex[0]);
 		colorCube.draw();
 
-		glFrontFace(GL_CW); // enter position
+		glFrontFace(GL_CW); 
 		rayEnterBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		color_position_shader();
@@ -178,6 +179,12 @@ int main()
 
 		// FINAL COMPOSITING
 
+		colorPickBuffer.bindBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		color_pick_shader();
+		quad.draw();
+
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_CULL_FACE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,6 +207,12 @@ int main()
 		glActiveTexture(GL_TEXTURE2);
 		gui.bindControlPointPositionTexture();
 
+		locator = glGetUniformLocation(final_shader, "colorPicker");
+		glUniform1i(locator, 3);
+		glActiveTexture(GL_TEXTURE3);
+		colorPickBuffer.bindTexture();
+		
+
 		locator = glGetUniformLocation(final_shader, "numberOfControlPoints");
 		glProgramUniform1f(final_shader, locator, gui.getNumberOfControlPoints());
 		locator = glGetUniformLocation(final_shader, "numberOfActiveControlPoints");
@@ -210,12 +223,13 @@ int main()
 		glProgramUniform1f(final_shader, locator, gui.getSelectedControlPoint());
 		locator = glGetUniformLocation(final_shader, "guiActive");
 		glProgramUniform1f(final_shader, locator, gui.isActive());
+		locator = glGetUniformLocation(final_shader, "guiColorPickActive");
+		glProgramUniform1f(final_shader, locator, gui.isColorPickActive());
 
 		quad.draw();
 
-		// clock.toc();
 
-		gui.update(window);
+		gui.update(window, colorPickBuffer);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

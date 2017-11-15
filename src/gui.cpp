@@ -6,9 +6,23 @@ GUI::GUI(const float &w, const float &h)
     initControlPoints();
 }
 
-float GUI::isActive(){
+float GUI::isActive()
+{
     return guiActive;
 }
+
+float GUI::isColorPickActive()
+{
+    return guiColorPickActive;
+}
+
+glm::vec4 GUI::readColorData(const int &x, const int &y)
+{
+	std::vector<glm::vec4> pixels(1);
+	glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
+	return pixels[0];
+}
+
 void GUI::bindControlPointValueTexture()
 {
     controlPointValueBuffer.bindTexture();
@@ -29,25 +43,21 @@ void GUI::initControlPoints()
 {
     std::vector<glm::vec4> pixels(numberOfControlPoints);
 
-    for (int id = 0; id < numberOfControlPoints; id++)
+    for (int id = 0; id < numberOfActiveControlPoints; id++)
     {
         controlPointPositions.push_back(glm::vec4(0));
         controlPointValues.push_back(glm::vec4(0));
     }
 
     // Test data
-    controlPointValues[0] = glm::vec4(1, 0, 0, 1);
-    controlPointValues[1] = glm::vec4(0, 1, 0, 1);
-    controlPointValues[2] = glm::vec4(0, 0, 1, 1);
-    controlPointValues[3] = glm::vec4(1, 1, 1, 1);
+    controlPointValues[0] = glm::vec4(0.5, 0.5, 0.5, 1);
+    controlPointValues[1] = glm::vec4(0.5, 0.5, 0.5, 1);
 
     drawData(controlPointValues, controlPointValueBuffer);
 
     // Test data
-    controlPointPositions[0] = glm::vec4(0.1, 0.9, 0, 1);
-    controlPointPositions[1] = glm::vec4(0.2, 0.2, 0, 1);
-    controlPointPositions[2] = glm::vec4(0.4, 0.5, 1, 1);
-    controlPointPositions[3] = glm::vec4(0.9, 0.1, 1, 1);
+    controlPointPositions[0] = glm::vec4(0.0, 0.5, 0, 0);
+    controlPointPositions[1] = glm::vec4(1.0, 0.5, 0, 0);
 
     drawData(controlPointPositions, controlPointPositionBuffer);
 }
@@ -84,12 +94,60 @@ glm::vec2 GUI::getCursorPosTF()
 
 void GUI::deleteControlPoint(int id)
 {
-    controlPointValues.erase(controlPointValues.begin() + id);
-    controlPointPositions.erase(controlPointPositions.begin() + id);
-    numberOfActiveControlPoints--;
+    if (id > 0 && id < (numberOfActiveControlPoints - 1.0))
+    {
+        controlPointValues.erase(controlPointValues.begin() + id);
+        controlPointPositions.erase(controlPointPositions.begin() + id);
+        numberOfActiveControlPoints--;
+    }
 }
 
-void GUI::update(GLFWwindow *&window)
+bool GUI::onLine()
+{
+    bool onLine = false;
+    for (float id = 1; id < numberOfActiveControlPoints; id++)
+    {
+        glm::vec2 currPoint = cursorPosTF;
+        glm::vec2 point1 = glm::vec2(controlPointPositions[id - 1].x, controlPointPositions[id - 1].y);
+        glm::vec2 point2 = glm::vec2(controlPointPositions[id].x, controlPointPositions[id].y);
+        if (length(point1 - currPoint) + length(currPoint - point2) - length(point1 - point2) < EPSILON)
+            onLine = true;
+    }
+
+    return onLine;
+}
+
+void GUI::addControlPoint()
+{
+
+    numberOfActiveControlPoints++;
+    std::vector<glm::vec4> tempPos;
+    std::vector<glm::vec4> tempVal;
+    tempPos.clear();
+    tempVal.clear();
+    // We will decide where to add controlPoint
+    for (float id = 0; id < numberOfActiveControlPoints; id++)
+    {
+
+        tempPos.push_back(controlPointPositions[id]);
+        tempVal.push_back(controlPointValues[id]);
+
+        if (controlPointPositions[id].x < cursorPosTF.x && controlPointPositions[id + 1].x > cursorPosTF.x)
+        {
+            tempPos.push_back(glm::vec4(cursorPosTF.x, cursorPosTF.y, 0.0, 0.0));
+            tempVal.push_back(glm::vec4(1.0, 0.0, 0.0, 1.0));
+        }
+    }
+
+    controlPointPositions = tempPos;
+    controlPointValues = tempVal;
+
+    // std::cout << std::flush;
+    // if(onLine) std::cout << "----";
+    // else std::cout << ":";
+}
+
+void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
 {
 
     timeSinceInteraction = glfwGetTime() - timeAtInteraction;
@@ -101,16 +159,33 @@ void GUI::update(GLFWwindow *&window)
     int ctrl = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
     int S = glfwGetKey(window, GLFW_KEY_S);
     int H = glfwGetKey(window, GLFW_KEY_H);
+    int C = glfwGetKey(window, GLFW_KEY_C);
 
-    if (ctrl && S && timeSinceInteraction > maxTimeBetweenInteractions){
+    // Save
+    if (ctrl && S && timeSinceInteraction > maxTimeBetweenInteractions)
+    {
         timeAtInteraction = glfwGetTime();
         std::cout << "Saved.\n";
     }
 
-    if (H && timeSinceInteraction > maxTimeBetweenInteractions) {
+    // Pick Color
+    if (C && timeSinceInteraction > maxTimeBetweenInteractions)
+    {
         timeAtInteraction = glfwGetTime();
-        if(guiActive) guiActive = 0.0;
-        else guiActive = 1.0;
+        if (guiColorPickActive)
+            guiColorPickActive = 0.0;
+        else
+            guiColorPickActive = 1.0;
+    }
+
+    // Hide GUI
+    if (H && timeSinceInteraction > maxTimeBetweenInteractions)
+    {
+        timeAtInteraction = glfwGetTime();
+        if (guiActive)
+            guiActive = 0.0;
+        else
+            guiActive = 1.0;
     }
 
     if (guiActive)
@@ -122,50 +197,93 @@ void GUI::update(GLFWwindow *&window)
         cursorPos.y = cursorY / (float)resolution.y;
         cursorPosTF.x = cursorPos.x;
         cursorPosTF.y = (1.0 - cursorPos.y) / 0.3;
+        cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
 
-        bool hoveringControlPoint = false;
-        for (int id = 0; id < numberOfControlPoints; id++)
+        if (!guiColorPickActive)
         {
-            if (length(cursorPosTF - glm::vec2(controlPointPositions[id].x, controlPointPositions[id].y)) < 0.05)
+            
+
+            bool hoveringControlPoint = false;
+            for (int id = 0; id < numberOfControlPoints; id++)
             {
-                hoveredControlPoint = id;
-                hoveringControlPoint = true;
-                if (currentLeft)
+                if (length(cursorPosTF - glm::vec2(controlPointPositions[id].x, controlPointPositions[id].y)) < 0.05)
                 {
-                    selectedControlPoint = id;
+                    hoveredControlPoint = id;
+                    hoveringControlPoint = true;
+                    if (!isDragged)
+                    {
+                        cursor = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+                        if (currentLeft)
+                        {
+                            selectedControlPoint = id;
+                            isDragged = true;
+                        }
+                    }
                 }
             }
-        }
-        if (!hoveringControlPoint)
-        {
-            hoveredControlPoint = -1;
-            if (currentLeft)
-            {
-                selectedControlPoint = -1;
-            }
-        }
-        else
-        {
-            if (currentRight && timeSinceInteraction > maxTimeBetweenInteractions)
-            {
-                deleteControlPoint(hoveredControlPoint);
-                timeAtInteraction = glfwGetTime();
-            }
 
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
+            // Move control point
+            if (currentLeft && isDragged && selectedControlPoint > 0 && selectedControlPoint < numberOfActiveControlPoints -1)
             {
+                float offset = 0.001;
                 controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, cursorPosTF.y, 0.0, 0.0);
+
+                if(controlPointPositions[selectedControlPoint-1].x > controlPointPositions[selectedControlPoint].x){
+                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint-1].x + offset, cursorPosTF.y, 0.0, 0.0);
+                }
+
+                if(controlPointPositions[selectedControlPoint+1].x < controlPointPositions[selectedControlPoint].x){
+                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint+1].x - offset, cursorPosTF.y, 0.0, 0.0);
+                }
+                
             }
             else
             {
-
+                isDragged = false;
             }
+
+            if (!hoveringControlPoint)
+            {
+                hoveredControlPoint = -1;
+                if (onLine())
+                {
+                    cursor = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+                }
+                if (!isDragged && currentLeft && timeSinceInteraction > maxTimeBetweenInteractions)
+                {
+                    selectedControlPoint = -1;
+                    if (onLine())
+                    {
+                        addControlPoint();
+                    }
+                    timeAtInteraction = glfwGetTime();
+                }
+            }
+            else
+            {
+                if (currentRight && timeSinceInteraction > maxTimeBetweenInteractions)
+                {
+                    deleteControlPoint(hoveredControlPoint);
+                    timeAtInteraction = glfwGetTime();
+                }
+            }
+
+            // std::cout << std::flush;
+            // std::cout << selectedControlPoint << "\n";
+
+            drawData(controlPointValues, controlPointValueBuffer);
+            drawData(controlPointPositions, controlPointPositionBuffer);
+            glfwSetCursor(window, cursor);
         }
-
-        // std::cout << std::flush;
-        // std::cout << selectedControlPoint << "\n";
-
-        drawData(controlPointValues, controlPointValueBuffer);
-        drawData(controlPointPositions, controlPointPositionBuffer);
+        else {
+            if(currentLeft && selectedControlPoint > -1) {
+                colorPickBuffer.bindTexture();
+                glm::vec4 color = readColorData(cursorX, resolution.y - cursorY);
+                controlPointValues[selectedControlPoint] = color;
+                // std::cout << std::flush;
+                // std::cout << "cursor: " << cursorX << ", " << cursorY << "\n";
+                // std::cout << "color: " << color.x<< ", " << color.y << ", " << color.z << "\n";
+            } 
+        }
     }
 }
