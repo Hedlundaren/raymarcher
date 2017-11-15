@@ -29,14 +29,17 @@ void drawPoint(inout vec4 color, vec2 point, vec4 pointColor) {
 
 }
 
-vec4 getControlPointValue(float id) {
+vec4 getControlPointValue(float id, sampler2D type) {
 
     vec2 controlPointCoord = vec2((id + 0.5)/numberOfControlPoints, 0.5);
-    return texture(controlPointValues, controlPointCoord);
+    return texture(type, controlPointCoord);
 } 
 
-void setControlPoints(){
+void setControlPoints(inout vec4 color){
 
+    for(float id = 0; id < 4; id++) {
+        drawPoint(color, getControlPointValue(id, controlPointPositions).xy, getControlPointValue(id, controlPointValues));
+    }
 }
 
 void main()
@@ -44,19 +47,19 @@ void main()
 
     vec4 finalColor = vec4(0);
     
-
     vec4 screenVolumeRender = texture(volumeRender, texCoord);
     finalColor = screenVolumeRender;
-
-
     
     if(texCoord.y < TF_height) {
         
         finalColor = TF_opacity * TF_background + (1.0-TF_opacity) * screenVolumeRender;
-        drawPoint(finalColor, vec2(0.4, 0.9), vec4(1.0, 0.3, 0.1, 1.0));
+        // drawPoint(finalColor, vec2(0.4, 0.9), vec4(1.0, 0.3, 0.1, 1.0));
+        setControlPoints(finalColor);
     }
 
     
-	// outColor = finalColor;
-	outColor = texture(controlPointValues, texCoord);
+	outColor = finalColor;
+	// outColor = texture(controlPointPositions, texCoord);
+    // outColor = getControlPointValue(0, controlPointValues);
+    
 } 
