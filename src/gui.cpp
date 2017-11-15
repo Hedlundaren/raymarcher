@@ -152,20 +152,76 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
 
     timeSinceInteraction = glfwGetTime() - timeAtInteraction;
 
-    // int alt = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
-    // int esc = glfwGetKey(window, GLFW_KEY_ESCAPE);
+    int alt = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
     int currentLeft = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
     int currentRight = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
     int ctrl = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+    int O = glfwGetKey(window, GLFW_KEY_O);
     int S = glfwGetKey(window, GLFW_KEY_S);
     int H = glfwGetKey(window, GLFW_KEY_H);
     int C = glfwGetKey(window, GLFW_KEY_C);
+    int n1 = glfwGetKey(window, GLFW_KEY_1);
+    int n2 = glfwGetKey(window, GLFW_KEY_2);
+    int n3 = glfwGetKey(window, GLFW_KEY_3);
+    int n4 = glfwGetKey(window, GLFW_KEY_4);
+    int n5 = glfwGetKey(window, GLFW_KEY_5);
+    int n6 = glfwGetKey(window, GLFW_KEY_6);
+    int n7 = glfwGetKey(window, GLFW_KEY_7);
+    int n8 = glfwGetKey(window, GLFW_KEY_8);
+    int n9 = glfwGetKey(window, GLFW_KEY_9);
+    int n0 = glfwGetKey(window, GLFW_KEY_0);
+    std::string fileToLoad = "-1";
+    if(n1) fileToLoad = "1";
+    if(n2) fileToLoad = "2";
+    if(n3) fileToLoad = "3";
+    if(n4) fileToLoad = "4";
+    if(n5) fileToLoad = "5";
+    if(n6) fileToLoad = "6";
+    if(n7) fileToLoad = "7";
+    if(n8) fileToLoad = "8";
+    if(n9) fileToLoad = "9";
+    if(n0) fileToLoad = "0";
+    activeTF = fileToLoad;
+    // Load
+    if (alt && fileToLoad != "-1" && timeSinceInteraction > maxTimeBetweenInteractions)
+    {   
+        TransferFunctionManager tfm;
+        tfm.load("tfs/"+fileToLoad+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        timeAtInteraction = glfwGetTime();
+        std::cout << "tf" + fileToLoad + " loaded.\n";
+    }
 
     // Save
-    if (ctrl && S && timeSinceInteraction > maxTimeBetweenInteractions)
+    if (ctrl && S && activeTF != "-1" && timeSinceInteraction > maxTimeBetweenInteractions)
     {
         timeAtInteraction = glfwGetTime();
-        std::cout << "Saved.\n";
+        TransferFunctionManager tfm;
+        tfm.save("tfs/"+fileToLoad+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        std::cout << "tf" + fileToLoad + " saved.\n";
+    }
+
+    if (ctrl && O && timeSinceInteraction > maxTimeBetweenInteractions)
+    {   
+        std::cout << "Enter filename (load): ";
+        timeAtInteraction = glfwGetTime();
+        std::string fileName;
+        std::cin >> fileName;
+        TransferFunctionManager tfm;
+        tfm.load("tfs/"+fileName+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        std::cout << "\nLoad complete.\n";
+        activeTF = "tfs/"+fileName+".tf";
+    }
+
+    // Save
+    if (ctrl && alt && S && timeSinceInteraction > maxTimeBetweenInteractions)
+    {
+        std::cout << "Enter filename (save): ";
+        timeAtInteraction = glfwGetTime();
+        std::string fileName;
+        std::cin >> fileName;
+        TransferFunctionManager tfm;
+        tfm.save("tfs/"+fileName+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        std::cout << "\nTransfer function saved.\n";
     }
 
     // Pick Color

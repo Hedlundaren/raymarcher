@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 #include <vector>
 #include <GLFW/glfw3.h>
+#include "tfm.h"
 
 class GUI
 {
@@ -54,4 +55,5 @@ private:
 
   glm::vec2 cursorPos;
   glm::vec2 cursorPosTF;
+  std::string activeTF = "-1";
 };

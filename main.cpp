@@ -178,12 +178,10 @@ int main()
 		quad.draw();
 
 		// FINAL COMPOSITING
-
 		colorPickBuffer.bindBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		color_pick_shader();
 		quad.draw();
-
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_CULL_FACE);
@@ -211,7 +209,7 @@ int main()
 		glUniform1i(locator, 3);
 		glActiveTexture(GL_TEXTURE3);
 		colorPickBuffer.bindTexture();
-		
+
 
 		locator = glGetUniformLocation(final_shader, "numberOfControlPoints");
 		glProgramUniform1f(final_shader, locator, gui.getNumberOfControlPoints());
