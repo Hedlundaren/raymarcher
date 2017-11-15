@@ -206,9 +206,9 @@ void Volume::loadDataPVM(std::string filePath)
 	std::cout << "spacing.y: " << spacing.y << '\n';
 	std::cout << "spacing.z: " << spacing.z << '\n';
 	std::cout << "description: " << description << '\n';
-	std::cout << "courtesy: " << courtesy << '\n';
-	std::cout << "parameter: " << parameter << '\n';
-	std::cout << "comment: " << comment << '\n';
+	// std::cout << "courtesy: " << courtesy << '\n';
+	// std::cout << "parameter: " << parameter << '\n';
+	// std::cout << "comment: " << comment << '\n';
 
 	resolution = glm::ivec3(dimx, dimy, dimz-30);
 	_spacing = glm::ivec3((int) spacing.x, (int) spacing.y, (int) spacing.z);
@@ -259,6 +259,8 @@ void Volume::loadDataPVM(std::string filePath)
 				}
 			
 			}
+
+			std::cout << std::flush;
 
 			float percentage = 100.0 * z / (float)dimz;
 			std::cout << (percentage) << "% \r";

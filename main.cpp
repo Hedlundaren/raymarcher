@@ -49,9 +49,6 @@ int main()
 	MouseRotator rotator;
 	rotator.init(window);
 
-	// GUI
-	GUI gui = GUI(W, H);
-
 	// Volume data
 	Volume volume;
 
@@ -64,9 +61,9 @@ int main()
 	// volume.loadDataPVM("data/CT-Head.pvm");
 	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
 	// volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
-	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
+	volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
-	volume.loadDataPVM("data/CT-Knee.pvm");
+	// volume.loadDataPVM("data/CT-Knee.pvm");
 
 	float dimx = volume.getResolution().x;
 	float dimy = volume.getResolution().y;
@@ -84,9 +81,12 @@ int main()
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
 	BoundingCube boundingCube;
-	std::cout << "Marching...\n" << std::endl;
 	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(10), &isoValue);
+	
 	ColorCube colorCube;
+
+	// GUI
+	GUI gui = GUI(W, H);
 
 	glfwSetWindowTitle(window, "Marching time");
 	glm::vec2 cursorPos;
@@ -188,12 +188,23 @@ int main()
 		locator = glGetUniformLocation(final_shader, "controlPointValues");
 		glUniform1i(locator, 1);
 		glActiveTexture(GL_TEXTURE1);
-		// gui.bindControlPointValueBuffer();
-		rayExitBuffer.bindTexture();
+		gui.bindControlPointValueTexture();
+
+		locator = glGetUniformLocation(final_shader, "controlPointPositions");
+		glUniform1i(locator, 2);
+		glActiveTexture(GL_TEXTURE2);
+		gui.bindControlPointPositionTexture();
+
+		locator = glGetUniformLocation(final_shader, "numberOfControlPoints");
+		glProgramUniform1f(final_shader, locator, gui.getNumberOfControlPoints());
+
 
 		quad.draw();
 
 		// clock.toc();
+
+		gui.update(window);
+		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

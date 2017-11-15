@@ -46,8 +46,6 @@ void MarchingMesh::createQuad(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec
 	normals.push_back(normal);
 }
 
-
-
 void MarchingMesh::createSurface()
 {
 	vertices.clear();
@@ -62,6 +60,7 @@ void MarchingMesh::createSurface()
 
 	glm::vec3 cubeSize = glm::vec3(1.0 / gridResolution.x, 1.0 / gridResolution.y, 1.0 / gridResolution.z);
 
+	std::cout << "Marching cubes...\n";
 	data.bindBuffer();
 	for (int z = 0; z < gridResolution.z; z++)
 	{
@@ -83,7 +82,6 @@ void MarchingMesh::createSurface()
 				v[5] = v[0] + glm::vec3(cubeSize.x, 0, cubeSize.z);
 				v[6] = v[0] + glm::vec3(cubeSize.x, cubeSize.y, cubeSize.z);
 				v[7] = v[0] + glm::vec3(0, cubeSize.y, cubeSize.z);
-
 
 				bool allEmpty = true;
 				// bool allFilled = true;
@@ -110,10 +108,13 @@ void MarchingMesh::createSurface()
 				}
 			}
 		}
-	
-		float percentage = 100.0 * z / gridResolution.z;
+
+		std::cout << std::flush;
+		float percentage = 100.0 * z / (float)gridResolution.z;
 		std::cout << (percentage) << "% \r";
 	}
+	std::cout << "Marching complete.\n"
+			  << std::endl;
 
 	// Model vertices
 	glGenBuffers(1, &VBO);
