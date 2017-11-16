@@ -9,12 +9,17 @@ uniform sampler2D volumeTexture;
 uniform sampler2D cubeTexture;
 uniform sampler2D rayExitTexture;
 uniform sampler2D rayEnterTexture;
-uniform sampler3D test;
+uniform sampler2D controlPointValues;
+uniform sampler2D controlPointPositions;
+// uniform sampler3D test;
 
+uniform float numberOfControlPoints;
+uniform float numberOfActiveControlPoints;
 uniform vec2 resolution;
 uniform vec3 volumeResolution;
 uniform float time;
 uniform vec3 camPos;
+
 
 float cubeSize = 		1.0;
 float borderLeft = 	0.0;
@@ -26,6 +31,12 @@ float borderFar = 	cubeSize;
 
 const float EPSILON = 0.016;
 #define PI 3.14159265359
+
+vec4 getControlPointValue(float id, sampler2D type) {
+
+    vec2 controlPointCoord = vec2((id + 0.5)/numberOfActiveControlPoints, 0.5);
+    return texture(type, controlPointCoord);
+} 
 
 float intersectSDF(float distA, float distB) {
     return max(distA, distB);
@@ -152,12 +163,32 @@ vec3 estimateNormal(vec3 p) {
 
 void transferFunction(inout vec4 data){
 
-		if(data.a > 0.1) data.xyz = vec3(0.6,0.2,0.2);
-		if(data.a > 0.3) data.xyz = vec3(0.63,0.46,.34);
-		if(data.a > 0.6) data.xyz = vec3(0.6,0.5,0.4);
-		if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
+		// if(data.a > 0.1) data.xyz = vec3(0.6,0.2,0.2);
+		// if(data.a > 0.3) data.xyz = vec3(0.63,0.46,.34);
+		// if(data.a > 0.6) data.xyz = vec3(0.6,0.5,0.4);
+		// if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
+		// else data.a *= 0.4;
+
+		for(float id = 1.0; id < numberOfActiveControlPoints-1; id++){
+			vec2 pos1 = getControlPointValue(id-1, controlPointPositions).xy;
+			vec2 pos2 = getControlPointValue(id, controlPointPositions).xy;
+			if( data.a > pos1.x && data.a < pos2.x) {
+				
+				float s1 = data.a - pos1.x;
+				float s2 = pos2.x - data.a;
+				float S = s1 + s2;
+
+				vec4 v1 = getControlPointValue(id-1, controlPointValues);
+				vec4 v2 = getControlPointValue(id, controlPointValues);
+				v1.a = pos1.y;
+				v2.a = pos2.y;
+
+				data = ( v1 * s1 + v2 * s2 ) / S;
+			}
+		}
 		if(data.a < 0.1) data.a = 0.0;
-		else data.a *= 0.4;
+		// data.a *= 0.05;
+		data.a *= 0.65;
 }
 
 void main(void)
@@ -165,7 +196,7 @@ void main(void)
 
 	// ====== CPU =========
 	vec3 normal = vec3(0);
-	vec3 light = normalize(vec3 (1, 1, 1));
+	vec3 light = normalize(vec3 (1, -5, 1));
 
 	// float x = 2.0 * gl_FragCoord.x/resolution.x - 1.0; // x, y => [-1, 1]
 	// float y = 2.0 * gl_FragCoord.y/resolution.y - 1.0;
@@ -176,8 +207,8 @@ void main(void)
 	float stepSize = 0.001;
 	stepSize = 0.003;
 
-	float randomStart = 1.0 * rand(enterPos.xy) * stepSize;
-	// randomStart = 0;
+	float randomStart = 2.0 * rand(enterPos.xy) * stepSize;
+	randomStart = 0;
 
 	// Ray starting position
 	vec3 rayDirection = normalize(exitPos - enterPos);
@@ -212,13 +243,13 @@ void main(void)
 
 		ray += stepSize * rayDirection;
 		normal = estimateNormal(ray);
-		float ambient = 0.2;
-		float diffuse = 0.4*max(dot(normal, light), 0.0);
-		float specular = 0.8 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
+		float ambient = 0.3;
+		float diffuse = 0.5*max(dot(normal, light), 0.0);
+		float specular = 0.2 * pow(max(dot(reflect(light, normal), normalize(camPos - ray)), 0), 50);
 		vec4 data = readVolume(ray.x, ray.y, ray.z);
 		transferFunction(data);
 		
-		v += vec4((ambient + (1.0 - ambient) * (diffuse + specular)) * data.xyz, data.a + v.a) * data.a;
+		v += vec4((ambient + (1.0 - ambient) * (diffuse + specular)) * data.xyz, 1.0) * data.a;
 		
 		if(texture(cubeTexture, texCoord).a != 0){
 			if(length(texture(cubeTexture, texCoord).xyz - camPos) > length(ray - camPos))
@@ -229,12 +260,13 @@ void main(void)
 		} 
 	}
 
+
 		if(length(enterPos) < EPSILON && texture(cubeTexture, texCoord).a != 0){
 			boundingCube = vec4(1.0);
 		} 
 
 
-	outColor = v;// + boundingCube * boundingCubeColor;
 
-	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor + 0.0*texture(rayEnterTexture, texCoord);
+	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+	outColor += 0.1*texture(rayEnterTexture, texCoord);
 }

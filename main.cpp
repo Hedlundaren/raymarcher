@@ -17,8 +17,8 @@
 #include "volume.h"
 #include "gui.h"
 
-#define W 1920 / 2
-#define H 1080 / 2
+#define W 1920
+#define H 1080
 
 int main()
 {
@@ -56,14 +56,14 @@ int main()
 
 	glfwSetWindowTitle(window, "Loading data...");
 
-	// // // volume.loadTestData(100, 100, 100);
+	// volume.loadTestData(100, 100, 100);
 	// volume.loadDataPVM("data/DTI-B0.pvm");
 	// volume.loadDataPVM("data/Bruce.pvm"); // 256 * 256 * 156
 	// volume.loadDataPVM("data/Bonsai2.pvm"); // 512, 512, 189 99MB 107MB on RAM
 	// volume.loadDataPVM("data/CT-Head.pvm");
-	// volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
+	volume.loadDataPVM("data/CT-Chest.pvm"); // 384, 384, 240
 	// volume.loadDataPVM("data/Foot.pvm"); // 256, 256, 256
-	volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
+	// volume.loadDataPVM("data/Engine.pvm"); // 256 * 256 * 256
 	// volume.loadDataPVM("data/MRI-Woman.pvm"); // 256 * 256 * 109
 	// volume.loadDataPVM("data/CT-Knee.pvm");
 
@@ -83,7 +83,7 @@ int main()
 	Quad quad = Quad();
 	Sphere sphere = Sphere(25, 25, 1.0f);
 	BoundingCube boundingCube;
-	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(10), &isoValue);
+	MarchingMesh mm = MarchingMesh(volume, glm::ivec3(30), &isoValue);
 
 	ColorCube colorCube;
 
@@ -96,7 +96,7 @@ int main()
 	do
 	{
 
-		if (gui.getCursorPosTF().y > 1.0)
+		if (gui.getCursorPosTF().y > 1.0 && !gui.isDraggedFun())
 		{
 			rotator.poll(window);
 		}
@@ -168,6 +168,16 @@ int main()
 		glActiveTexture(GL_TEXTURE3);
 		rayEnterBuffer.bindTexture();
 
+		locator = glGetUniformLocation(screen_shader, "controlPointValues");
+		glUniform1i(locator, 4);
+		glActiveTexture(GL_TEXTURE4);
+		gui.bindControlPointValueTexture();
+
+		locator = glGetUniformLocation(screen_shader, "controlPointPositions");
+		glUniform1i(locator, 5);
+		glActiveTexture(GL_TEXTURE5);
+		gui.bindControlPointPositionTexture();
+
 		// locator = glGetUniformLocation(screen_shader, "test");
 		// glUniform1i(locator, 4);
 		// glActiveTexture(GL_TEXTURE4);
@@ -175,6 +185,10 @@ int main()
 
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
+		locator = glGetUniformLocation(screen_shader, "numberOfControlPoints");
+		glProgramUniform1f(screen_shader, locator, gui.getNumberOfControlPoints());
+		locator = glGetUniformLocation(screen_shader, "numberOfActiveControlPoints");
+		glProgramUniform1f(screen_shader, locator, gui.getNumberOfActiveControlPoints());
 		quad.draw();
 
 		// FINAL COMPOSITING

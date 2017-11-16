@@ -16,11 +16,16 @@ float GUI::isColorPickActive()
     return guiColorPickActive;
 }
 
+bool GUI::isDraggedFun()
+{
+    return isDragged;
+}
+
 glm::vec4 GUI::readColorData(const int &x, const int &y)
 {
-	std::vector<glm::vec4> pixels(1);
-	glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
-	return pixels[0];
+    std::vector<glm::vec4> pixels(1);
+    glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, pixels.data());
+    return pixels[0];
 }
 
 void GUI::bindControlPointValueTexture()
@@ -120,7 +125,6 @@ bool GUI::onLine()
 void GUI::addControlPoint()
 {
 
-    numberOfActiveControlPoints++;
     std::vector<glm::vec4> tempPos;
     std::vector<glm::vec4> tempVal;
     tempPos.clear();
@@ -134,6 +138,7 @@ void GUI::addControlPoint()
 
         if (controlPointPositions[id].x < cursorPosTF.x && controlPointPositions[id + 1].x > cursorPosTF.x)
         {
+            numberOfActiveControlPoints++;
             tempPos.push_back(glm::vec4(cursorPosTF.x, cursorPosTF.y, 0.0, 0.0));
             tempVal.push_back(glm::vec4(1.0, 0.0, 0.0, 1.0));
         }
@@ -171,22 +176,32 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
     int n9 = glfwGetKey(window, GLFW_KEY_9);
     int n0 = glfwGetKey(window, GLFW_KEY_0);
     std::string fileToLoad = "-1";
-    if(n1) fileToLoad = "1";
-    if(n2) fileToLoad = "2";
-    if(n3) fileToLoad = "3";
-    if(n4) fileToLoad = "4";
-    if(n5) fileToLoad = "5";
-    if(n6) fileToLoad = "6";
-    if(n7) fileToLoad = "7";
-    if(n8) fileToLoad = "8";
-    if(n9) fileToLoad = "9";
-    if(n0) fileToLoad = "0";
+    if (n1)
+        fileToLoad = "1";
+    if (n2)
+        fileToLoad = "2";
+    if (n3)
+        fileToLoad = "3";
+    if (n4)
+        fileToLoad = "4";
+    if (n5)
+        fileToLoad = "5";
+    if (n6)
+        fileToLoad = "6";
+    if (n7)
+        fileToLoad = "7";
+    if (n8)
+        fileToLoad = "8";
+    if (n9)
+        fileToLoad = "9";
+    if (n0)
+        fileToLoad = "0";
     activeTF = fileToLoad;
     // Load
     if (alt && fileToLoad != "-1" && timeSinceInteraction > maxTimeBetweenInteractions)
-    {   
+    {
         TransferFunctionManager tfm;
-        tfm.load("tfs/"+fileToLoad+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        tfm.load("tfs/" + fileToLoad + ".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
         timeAtInteraction = glfwGetTime();
         std::cout << "tf" + fileToLoad + " loaded.\n";
     }
@@ -196,20 +211,20 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
     {
         timeAtInteraction = glfwGetTime();
         TransferFunctionManager tfm;
-        tfm.save("tfs/"+fileToLoad+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        tfm.save("tfs/" + fileToLoad + ".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
         std::cout << "tf" + fileToLoad + " saved.\n";
     }
 
     if (ctrl && O && timeSinceInteraction > maxTimeBetweenInteractions)
-    {   
+    {
         std::cout << "Enter filename (load): ";
         timeAtInteraction = glfwGetTime();
         std::string fileName;
         std::cin >> fileName;
         TransferFunctionManager tfm;
-        tfm.load("tfs/"+fileName+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        tfm.load("tfs/" + fileName + ".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
         std::cout << "\nLoad complete.\n";
-        activeTF = "tfs/"+fileName+".tf";
+        activeTF = "tfs/" + fileName + ".tf";
     }
 
     // Save
@@ -220,7 +235,7 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
         std::string fileName;
         std::cin >> fileName;
         TransferFunctionManager tfm;
-        tfm.save("tfs/"+fileName+".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
+        tfm.save("tfs/" + fileName + ".tf", controlPointPositions, controlPointValues, numberOfActiveControlPoints);
         std::cout << "\nTransfer function saved.\n";
     }
 
@@ -257,7 +272,6 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
 
         if (!guiColorPickActive)
         {
-            
 
             bool hoveringControlPoint = false;
             for (int id = 0; id < numberOfControlPoints; id++)
@@ -279,19 +293,38 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
             }
 
             // Move control point
-            if (currentLeft && isDragged && selectedControlPoint > 0 && selectedControlPoint < numberOfActiveControlPoints -1)
+            if (currentLeft && isDragged && selectedControlPoint > 0 && selectedControlPoint < numberOfActiveControlPoints - 1)
             {
                 float offset = 0.001;
                 controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, cursorPosTF.y, 0.0, 0.0);
 
-                if(controlPointPositions[selectedControlPoint-1].x > controlPointPositions[selectedControlPoint].x){
-                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint-1].x + offset, cursorPosTF.y, 0.0, 0.0);
+                if (controlPointPositions[selectedControlPoint - 1].x > controlPointPositions[selectedControlPoint].x)
+                {
+                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint - 1].x + offset, cursorPosTF.y, 0.0, 0.0);
                 }
 
-                if(controlPointPositions[selectedControlPoint+1].x < controlPointPositions[selectedControlPoint].x){
-                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint+1].x - offset, cursorPosTF.y, 0.0, 0.0);
+                if (controlPointPositions[selectedControlPoint + 1].x < controlPointPositions[selectedControlPoint].x)
+                {
+                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint + 1].x - offset, cursorPosTF.y, 0.0, 0.0);
                 }
-                
+
+                if (controlPointPositions[selectedControlPoint].x < 0.0)
+                {
+                    controlPointPositions[selectedControlPoint] = glm::vec4(offset, cursorPosTF.y, 0.0, 0.0);
+                }
+                if (controlPointPositions[selectedControlPoint].x > resolution.x)
+                {
+                    controlPointPositions[selectedControlPoint] = glm::vec4(resolution.x - offset, cursorPosTF.y, 0.0, 0.0);;
+                }
+                if (controlPointPositions[selectedControlPoint].y < 0.0)
+                {
+                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, offset, 0.0, 0.0);;
+                }
+                if (controlPointPositions[selectedControlPoint].y > resolution.y)
+                {
+                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, resolution.y - offset, 0.0, 0.0);;
+                }
+
             }
             else
             {
@@ -327,19 +360,22 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
             // std::cout << std::flush;
             // std::cout << selectedControlPoint << "\n";
 
-            drawData(controlPointValues, controlPointValueBuffer);
-            drawData(controlPointPositions, controlPointPositionBuffer);
             glfwSetCursor(window, cursor);
         }
-        else {
-            if(currentLeft && selectedControlPoint > -1) {
+        else
+        {
+            if (currentLeft && selectedControlPoint > -1)
+            {
                 colorPickBuffer.bindTexture();
                 glm::vec4 color = readColorData(cursorX, resolution.y - cursorY);
                 controlPointValues[selectedControlPoint] = color;
                 // std::cout << std::flush;
                 // std::cout << "cursor: " << cursorX << ", " << cursorY << "\n";
                 // std::cout << "color: " << color.x<< ", " << color.y << ", " << color.z << "\n";
-            } 
+            }
         }
     }
+
+    drawData(controlPointValues, controlPointValueBuffer);
+    drawData(controlPointPositions, controlPointPositionBuffer);
 }

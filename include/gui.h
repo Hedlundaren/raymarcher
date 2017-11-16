@@ -13,6 +13,7 @@ public:
   GUI(const float &w, const float &h);
   float isActive();
   float isColorPickActive();
+  bool isDraggedFun();
   glm::vec4 readColorData(const int &x, const int &y);
   void bindControlPointValueTexture();
   void bindControlPointPositionTexture();
@@ -36,10 +37,10 @@ private:
   void initControlPoints();
   void drawData(const std::vector<glm::vec4> &pixels, Framebuffer &buffer);
 
-  const int numberOfControlPoints = 100;
+  const int numberOfControlPoints = 10;
   int numberOfActiveControlPoints = 2;
-  Framebuffer controlPointValueBuffer = Framebuffer(100, 1);
-  Framebuffer controlPointPositionBuffer = Framebuffer(100, 1);
+  Framebuffer controlPointValueBuffer = Framebuffer(10, 1);
+  Framebuffer controlPointPositionBuffer = Framebuffer(10, 1);
   glm::ivec2 resolution;
 
   std::vector<glm::vec4> controlPointValues;

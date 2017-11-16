@@ -210,7 +210,7 @@ void Volume::loadDataPVM(std::string filePath)
 	// std::cout << "parameter: " << parameter << '\n';
 	// std::cout << "comment: " << comment << '\n';
 
-	resolution = glm::ivec3(dimx, dimy, dimz-30);
+	resolution = glm::ivec3(dimx, dimy, dimz-10);
 	_spacing = glm::ivec3((int) spacing.x, (int) spacing.y, (int) spacing.z);
 	int frameBufferSizeX = resolution.x * (int)ceil(sqrt((float)resolution.z));
 	int frameBufferSizeY = resolution.y * (int)ceil(sqrt((float)resolution.z));

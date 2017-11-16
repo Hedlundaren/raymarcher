@@ -14,6 +14,7 @@ uniform sampler2D volumeRender;
 uniform sampler2D controlPointValues;
 uniform sampler2D controlPointPositions;
 uniform sampler2D colorPicker;
+
 uniform float numberOfControlPoints;
 uniform float numberOfActiveControlPoints;
 uniform float hoveredControlPoint;
