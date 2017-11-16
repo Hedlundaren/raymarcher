@@ -21,6 +21,7 @@ public:
   float getNumberOfActiveControlPoints();
   float getSelectedControlPoint();
   float getHoveredControlPoint();
+  glm::vec3 getVolumeSlicing();
   glm::vec2 getCursorPos();
   glm::vec2 getCursorPosTF();
   void deleteControlPoint(int id);
@@ -37,10 +38,10 @@ private:
   void initControlPoints();
   void drawData(const std::vector<glm::vec4> &pixels, Framebuffer &buffer);
 
-  const int numberOfControlPoints = 10;
+  const int numberOfControlPoints = 100;
   int numberOfActiveControlPoints = 2;
-  Framebuffer controlPointValueBuffer = Framebuffer(10, 1);
-  Framebuffer controlPointPositionBuffer = Framebuffer(10, 1);
+  Framebuffer controlPointValueBuffer = Framebuffer(100, 1);
+  Framebuffer controlPointPositionBuffer = Framebuffer(100, 1);
   glm::ivec2 resolution;
 
   std::vector<glm::vec4> controlPointValues;
@@ -53,6 +54,8 @@ private:
 
   bool isDragged = false;
   GLFWcursor *cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+
+  glm::vec3 volumeSlicing = glm::vec3(0.0);
 
   glm::vec2 cursorPos;
   glm::vec2 cursorPosTF;

@@ -97,6 +97,11 @@ glm::vec2 GUI::getCursorPosTF()
     return cursorPosTF;
 }
 
+glm::vec3 GUI::getVolumeSlicing()
+{
+    return volumeSlicing;
+}
+
 void GUI::deleteControlPoint(int id)
 {
     if (id > 0 && id < (numberOfActiveControlPoints - 1.0))
@@ -175,6 +180,8 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
     int n8 = glfwGetKey(window, GLFW_KEY_8);
     int n9 = glfwGetKey(window, GLFW_KEY_9);
     int n0 = glfwGetKey(window, GLFW_KEY_0);
+
+
     std::string fileToLoad = "-1";
     if (n1)
         fileToLoad = "1";
@@ -314,17 +321,19 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
                 }
                 if (controlPointPositions[selectedControlPoint].x > resolution.x)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(resolution.x - offset, cursorPosTF.y, 0.0, 0.0);;
+                    controlPointPositions[selectedControlPoint] = glm::vec4(resolution.x - offset, cursorPosTF.y, 0.0, 0.0);
+                    ;
                 }
                 if (controlPointPositions[selectedControlPoint].y < 0.0)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, offset, 0.0, 0.0);;
+                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, offset, 0.0, 0.0);
+                    ;
                 }
                 if (controlPointPositions[selectedControlPoint].y > resolution.y)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, resolution.y - offset, 0.0, 0.0);;
+                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, resolution.y - offset, 0.0, 0.0);
+                    ;
                 }
-
             }
             else
             {

@@ -17,8 +17,8 @@
 #include "volume.h"
 #include "gui.h"
 
-#define W 1920
-#define H 1080
+#define W 1920/2
+#define H 1080/2
 
 int main()
 {
@@ -189,6 +189,8 @@ int main()
 		glProgramUniform1f(screen_shader, locator, gui.getNumberOfControlPoints());
 		locator = glGetUniformLocation(screen_shader, "numberOfActiveControlPoints");
 		glProgramUniform1f(screen_shader, locator, gui.getNumberOfActiveControlPoints());
+		locator = glGetUniformLocation(screen_shader, "volumeSlicing");
+		glUniform3fv(locator, 1, &gui.getVolumeSlicing()[0]);
 		quad.draw();
 
 		// FINAL COMPOSITING

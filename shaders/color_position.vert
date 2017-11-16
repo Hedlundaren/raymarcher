@@ -22,6 +22,7 @@ void main() {
 
 	newPos.y *= yzRelativex.x;
 	newPos.z *= yzRelativex.y;
+	// if(newPos.z > 0.0) newPos.z = 0;
 
     gl_Position = P * MV * vec4(newPos, 1.0f);
 }

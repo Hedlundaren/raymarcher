@@ -17,6 +17,7 @@ uniform float numberOfControlPoints;
 uniform float numberOfActiveControlPoints;
 uniform vec2 resolution;
 uniform vec3 volumeResolution;
+uniform vec3 volumeSlicing;
 uniform float time;
 uniform vec3 camPos;
 
@@ -34,7 +35,7 @@ const float EPSILON = 0.016;
 
 vec4 getControlPointValue(float id, sampler2D type) {
 
-    vec2 controlPointCoord = vec2((id + 0.5)/numberOfActiveControlPoints, 0.5);
+    vec2 controlPointCoord = vec2((id + 0.5)/numberOfControlPoints, 0.5);
     return texture(type, controlPointCoord);
 } 
 
@@ -140,7 +141,9 @@ vec4 readVolume(float x, float y, float z){
 	// z -= factor*(0.5 - z);
 	// if(!insideUnitCube(vec3(x,y,z))) return vec4(0);
 	//==============================
-
+	if(x < volumeSlicing.x) return vec4(0.0);
+	if(y < volumeSlicing.y) return vec4(0.0);
+	if(z < volumeSlicing.z) return vec4(0.0);
 	// Read at correct place in volume
 	x *= volumeResolution.x;
 	y *= volumeResolution.y;
@@ -268,5 +271,5 @@ void main(void)
 
 
 	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
-	outColor += 0.1*texture(rayEnterTexture, texCoord);
+	outColor += 0.0*texture(rayEnterTexture, texCoord);
 }
