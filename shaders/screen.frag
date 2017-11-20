@@ -13,6 +13,7 @@ uniform sampler2D controlPointValues;
 uniform sampler2D controlPointPositions;
 // uniform sampler3D test;
 
+uniform float opacityFactor;
 uniform float numberOfControlPoints;
 uniform float numberOfActiveControlPoints;
 uniform vec2 resolution;
@@ -172,7 +173,7 @@ void transferFunction(inout vec4 data){
 		// if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
 		// else data.a *= 0.4;
 
-		for(float id = 1.0; id < numberOfActiveControlPoints-1; id++){
+		for(float id = 1.0; id < numberOfActiveControlPoints; id++){
 			vec2 pos1 = getControlPointValue(id-1, controlPointPositions).xy;
 			vec2 pos2 = getControlPointValue(id, controlPointPositions).xy;
 			if( data.a > pos1.x && data.a < pos2.x) {
@@ -186,12 +187,11 @@ void transferFunction(inout vec4 data){
 				v1.a = pos1.y;
 				v2.a = pos2.y;
 
-				data = ( v1 * s1 + v2 * s2 ) / S;
+				data = ( v1 * s1 + v2 * s2 ) / (S);
 			}
 		}
-		if(data.a < 0.1) data.a = 0.0;
-		// data.a *= 0.05;
-		data.a *= 0.65;
+
+        data.a *= opacityFactor;
 }
 
 void main(void)
@@ -272,4 +272,6 @@ void main(void)
 
 	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
 	outColor += 0.0*texture(rayEnterTexture, texCoord);
+	outColor = v;
+	
 }

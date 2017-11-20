@@ -76,6 +76,7 @@ int main()
 	float yRelativex = (dimy / dimx) * (spacingy / spacingx);
 	float zRelativex = (dimz / dimx) * (spacingz / spacingx);
 	glm::vec2 yzRelativex = glm::vec2(yRelativex, zRelativex);
+	// yzRelativex = glm::vec2(1.0);K
 
 	float isoValue = 0.1;
 
@@ -183,9 +184,13 @@ int main()
 		// glActiveTexture(GL_TEXTURE4);
 		// volume.InitTextures3D();
 
+		
+
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
-		locator = glGetUniformLocation(screen_shader, "numberOfControlPoints");
+		locator = glGetUniformLocation(screen_shader, "opacityFactor");
+		glProgramUniform1f(screen_shader, locator, gui.getOpacityFactor());
+        locator = glGetUniformLocation(screen_shader, "numberOfControlPoints");
 		glProgramUniform1f(screen_shader, locator, gui.getNumberOfControlPoints());
 		locator = glGetUniformLocation(screen_shader, "numberOfActiveControlPoints");
 		glProgramUniform1f(screen_shader, locator, gui.getNumberOfActiveControlPoints());

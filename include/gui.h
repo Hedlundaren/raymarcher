@@ -21,6 +21,7 @@ public:
   float getNumberOfActiveControlPoints();
   float getSelectedControlPoint();
   float getHoveredControlPoint();
+  float getOpacityFactor();
   glm::vec3 getVolumeSlicing();
   glm::vec2 getCursorPos();
   glm::vec2 getCursorPosTF();
@@ -28,12 +29,13 @@ public:
   bool onLine();
   void addControlPoint();
 
+
   void update(GLFWwindow *&window, Framebuffer &colorPickBuffer);
 
 private:
   float guiActive = 1.0f;
   float guiColorPickActive = 0.0f;
-  const float EPSILON = 0.0010;
+  const float EPSILON = 0.010;
 
   void initControlPoints();
   void drawData(const std::vector<glm::vec4> &pixels, Framebuffer &buffer);
@@ -54,6 +56,7 @@ private:
 
   bool isDragged = false;
   GLFWcursor *cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+  float opacityFactor = 1.0f;
 
   glm::vec3 volumeSlicing = glm::vec3(0.0);
 

@@ -102,6 +102,11 @@ glm::vec3 GUI::getVolumeSlicing()
     return volumeSlicing;
 }
 
+float GUI::getOpacityFactor()
+{
+    return opacityFactor;
+}
+
 void GUI::deleteControlPoint(int id)
 {
     if (id > 0 && id < (numberOfActiveControlPoints - 1.0))
@@ -180,7 +185,6 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
     int n8 = glfwGetKey(window, GLFW_KEY_8);
     int n9 = glfwGetKey(window, GLFW_KEY_9);
     int n0 = glfwGetKey(window, GLFW_KEY_0);
-
 
     std::string fileToLoad = "-1";
     if (n1)
@@ -302,7 +306,7 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
             // Move control point
             if (currentLeft && isDragged && selectedControlPoint > 0 && selectedControlPoint < numberOfActiveControlPoints - 1)
             {
-                float offset = 0.001;
+                float offset = 0.00001;
                 controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, cursorPosTF.y, 0.0, 0.0);
 
                 if (controlPointPositions[selectedControlPoint - 1].x > controlPointPositions[selectedControlPoint].x)
@@ -317,23 +321,22 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
 
                 if (controlPointPositions[selectedControlPoint].x < 0.0)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(offset, cursorPosTF.y, 0.0, 0.0);
+                    controlPointPositions[selectedControlPoint] = glm::vec4(offset, controlPointPositions[selectedControlPoint].y, 0.0, 0.0);
                 }
                 if (controlPointPositions[selectedControlPoint].x > resolution.x)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(resolution.x - offset, cursorPosTF.y, 0.0, 0.0);
-                    ;
+                    controlPointPositions[selectedControlPoint] = glm::vec4(resolution.x - offset, controlPointPositions[selectedControlPoint].y, 0.0, 0.0);
                 }
                 if (controlPointPositions[selectedControlPoint].y < 0.0)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, offset, 0.0, 0.0);
-                    ;
+                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint].x, offset, 0.0, 0.0);
                 }
-                if (controlPointPositions[selectedControlPoint].y > resolution.y)
+                if (controlPointPositions[selectedControlPoint].y > 1.0)
                 {
-                    controlPointPositions[selectedControlPoint] = glm::vec4(cursorPosTF.x, resolution.y - offset, 0.0, 0.0);
-                    ;
+                    controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint].x, 1.0 - offset, 0.0, 0.0);
                 }
+
+                
             }
             else
             {
@@ -387,4 +390,25 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
 
     drawData(controlPointValues, controlPointValueBuffer);
     drawData(controlPointPositions, controlPointPositionBuffer);
+
+    if (glfwGetKey(window, GLFW_KEY_X))
+    {
+        volumeSlicing.x = cursorPos.x;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Y))
+    {
+        volumeSlicing.y = cursorPos.x;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Z))
+    {
+        volumeSlicing.z = cursorPos.x;
+    }
+    if (glfwGetKey(window, GLFW_KEY_R))
+    {
+        volumeSlicing = glm::vec3(0);
+    }
+    if (glfwGetKey(window, GLFW_KEY_O))
+    {
+        opacityFactor = cursorPos.x;
+    }
 }
