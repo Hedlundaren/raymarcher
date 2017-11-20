@@ -174,12 +174,12 @@ void transferFunction(inout vec4 data){
     // if(data.a > 0.6) data.xyz = vec3(0.6,0.5,0.4);
     // if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
     // else data.a *= 0.4;
-
+    bool dataInRange = false;
     for(float id = 1.0; id < numberOfActiveControlPoints; id++){
         vec2 pos1 = getControlPointValue(id-1, controlPointPositions).xy;
         vec2 pos2 = getControlPointValue(id, controlPointPositions).xy;
         if( data.a > pos1.x && data.a < pos2.x) {
-            
+            dataInRange = true;
             float s1 = data.a - pos1.x;
             float s2 = pos2.x - data.a;
             float S = s1 + s2;
@@ -192,6 +192,7 @@ void transferFunction(inout vec4 data){
             data = ( v1 * s1 + v2 * s2 ) / (S);
         }
     }
+    if(!dataInRange) data = vec4(0.0);
 
     data.a *= opacityFactor;
 

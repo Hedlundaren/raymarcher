@@ -76,7 +76,7 @@ int main()
 	float yRelativex = (dimy / dimx) * (spacingy / spacingx);
 	float zRelativex = (dimz / dimx) * (spacingz / spacingx);
 	glm::vec2 yzRelativex = glm::vec2(yRelativex, zRelativex);
-	// yzRelativex = glm::vec2(1.0);K
+	// yzRelativex = glm::vec2(1.0);
 
 	float isoValue = 0.1;
 
