@@ -188,7 +188,9 @@ int main()
 
 		locator = glGetUniformLocation(screen_shader, "volumeResolution");
 		glUniform3fv(locator, 1, &volume.getResolution()[0]);
-		locator = glGetUniformLocation(screen_shader, "opacityFactor");
+		locator = glGetUniformLocation(screen_shader, "isInteracting");
+        glProgramUniform1f(screen_shader, locator, rotator.getIsInteracting());
+        locator = glGetUniformLocation(screen_shader, "opacityFactor");
 		glProgramUniform1f(screen_shader, locator, gui.getOpacityFactor());
         locator = glGetUniformLocation(screen_shader, "numberOfControlPoints");
 		glProgramUniform1f(screen_shader, locator, gui.getNumberOfControlPoints());

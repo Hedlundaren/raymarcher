@@ -50,7 +50,13 @@ void MouseRotator::init(GLFWwindow *window) {
 // {
 // 	scroll_zoom += yoffset/4.0;
 // }
-
+float MouseRotator::getIsInteracting() {
+    if(rotStarted || zoomStarted) {
+        return 1.0f;
+    } else {
+        return 0.0f;
+    }
+}
 
 void MouseRotator::poll(GLFWwindow *window) {
 
@@ -59,7 +65,6 @@ void MouseRotator::poll(GLFWwindow *window) {
 	int currentLeft;
 	int currentRight;
 	int currentMiddle;
-	int alt;
 	double moveX;
 	double moveY;
 	int windowWidth;
@@ -70,8 +75,6 @@ void MouseRotator::poll(GLFWwindow *window) {
 	currentLeft = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 	currentRight = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 	currentMiddle = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE);
-	alt = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
-	alt = true;
 
 	// Scroll
 	// glfwSetScrollCallback(window, scroll_callback);
@@ -79,33 +82,33 @@ void MouseRotator::poll(GLFWwindow *window) {
 	
 	glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
-	if (alt || rotStarted) {
-		if (currentLeft && lastLeft) { // If a left button drag is in progress
-			moveX = currentX - lastX;
-			moveY = currentY - lastY;
-			phi += M_PI * moveX / windowWidth; // Longest drag rotates 180 degrees
-			if (phi >= M_PI*2.0 + 0.001f) phi = 0.0f;
-			if (phi <= 0.0 - 0.001f) phi = M_PI*2.0f;
+    if (currentLeft && lastLeft) { // If a left button drag is in progress
+        moveX = currentX - lastX;
+        moveY = currentY - lastY;
+        phi += M_PI * moveX / windowWidth; // Longest drag rotates 180 degrees
+        if (phi >= M_PI*2.0 + 0.001f) phi = 0.0f;
+        if (phi <= 0.0 - 0.001f) phi = M_PI*2.0f;
 
-			theta += M_PI * moveY / windowHeight; // Longest drag rotates 180 deg
-			if (theta >= M_PI/2.0f - 0.05f) theta =M_PI/2.0f - 0.05f;
-			if (theta <= -M_PI/2.0f + 0.05f) theta =-M_PI/2.0f + 0.05f;
-			rotStarted = true;
-		}
-		else rotStarted = false;
+        theta += M_PI * moveY / windowHeight; // Longest drag rotates 180 deg
+        if (theta >= M_PI/2.0f - 0.05f) theta =M_PI/2.0f - 0.05f;
+        if (theta <= -M_PI/2.0f + 0.05f) theta =-M_PI/2.0f + 0.05f;
+        rotStarted = true;
+    }
+    else rotStarted = false;
 
-		if (currentMiddle && lastMiddle) { // If a left button drag is in progress
-			moveX = currentX - lastX;
-			moveY = currentY - lastY;
-			transX -= moveX / 500.0f;
-			transY += moveY / 500.0f;
-		}
+    if (currentMiddle && lastMiddle) { // If a left button drag is in progress
+        moveX = currentX - lastX;
+        moveY = currentY - lastY;
+        transX -= moveX / 500.0f;
+        transY += moveY / 500.0f;
+    }
 
-		if (currentRight && lastRight) { // If a left button drag is in progress
-			moveY = currentY - lastY;
-			zoom += moveY / 30.0f;
-		}
-	}
+    if (currentRight && lastRight) { // If a left button drag is in progress
+        moveY = currentY - lastY;
+        zoom += moveY / 30.0f;
+        zoomStarted = true;
+    } else zoomStarted = false;
+
 	lastLeft = currentLeft;
 	lastRight = currentRight;
 	lastMiddle = currentMiddle;

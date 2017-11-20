@@ -13,6 +13,7 @@ uniform sampler2D controlPointValues;
 uniform sampler2D controlPointPositions;
 // uniform sampler3D test;
 
+uniform float isInteracting;
 uniform float opacityFactor;
 uniform float numberOfControlPoints;
 uniform float numberOfActiveControlPoints;
@@ -23,6 +24,7 @@ uniform float time;
 uniform vec3 camPos;
 
 
+const float interactingFactor = 5.0;
 float cubeSize = 		1.0;
 float borderLeft = 	0.0;
 float borderRight = 	cubeSize;
@@ -167,31 +169,33 @@ vec3 estimateNormal(vec3 p) {
 
 void transferFunction(inout vec4 data){
 
-		// if(data.a > 0.1) data.xyz = vec3(0.6,0.2,0.2);
-		// if(data.a > 0.3) data.xyz = vec3(0.63,0.46,.34);
-		// if(data.a > 0.6) data.xyz = vec3(0.6,0.5,0.4);
-		// if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
-		// else data.a *= 0.4;
+    // if(data.a > 0.1) data.xyz = vec3(0.6,0.2,0.2);
+    // if(data.a > 0.3) data.xyz = vec3(0.63,0.46,.34);
+    // if(data.a > 0.6) data.xyz = vec3(0.6,0.5,0.4);
+    // if(data.a > 0.8) data.xyz = vec3(0.9,0.9,0.8);
+    // else data.a *= 0.4;
 
-		for(float id = 1.0; id < numberOfActiveControlPoints; id++){
-			vec2 pos1 = getControlPointValue(id-1, controlPointPositions).xy;
-			vec2 pos2 = getControlPointValue(id, controlPointPositions).xy;
-			if( data.a > pos1.x && data.a < pos2.x) {
-				
-				float s1 = data.a - pos1.x;
-				float s2 = pos2.x - data.a;
-				float S = s1 + s2;
+    for(float id = 1.0; id < numberOfActiveControlPoints; id++){
+        vec2 pos1 = getControlPointValue(id-1, controlPointPositions).xy;
+        vec2 pos2 = getControlPointValue(id, controlPointPositions).xy;
+        if( data.a > pos1.x && data.a < pos2.x) {
+            
+            float s1 = data.a - pos1.x;
+            float s2 = pos2.x - data.a;
+            float S = s1 + s2;
 
-				vec4 v1 = getControlPointValue(id-1, controlPointValues);
-				vec4 v2 = getControlPointValue(id, controlPointValues);
-				v1.a = pos1.y;
-				v2.a = pos2.y;
+            vec4 v1 = getControlPointValue(id-1, controlPointValues);
+            vec4 v2 = getControlPointValue(id, controlPointValues);
+            v1.a = pos1.y;
+            v2.a = pos2.y;
 
-				data = ( v1 * s1 + v2 * s2 ) / (S);
-			}
-		}
+            data = ( v1 * s1 + v2 * s2 ) / (S);
+        }
+    }
 
-        data.a *= opacityFactor;
+    data.a *= opacityFactor;
+
+    if(isInteracting > 0.5) data.a = data.a * opacityFactor  +  data.a * interactingFactor * (1.0 - opacityFactor);
 }
 
 void main(void)
@@ -208,7 +212,10 @@ void main(void)
 	vec3 enterPos = texture(rayEnterTexture, texCoord).xyz;
 	vec3 exitPos = texture(rayExitTexture, texCoord).xyz;
 	float stepSize = 0.001;
-	stepSize = 0.003;
+	stepSize = 0.5/volumeResolution.y;
+    if(isInteracting > 0.5){
+	    stepSize *= interactingFactor;
+    }
 
 	float randomStart = 2.0 * rand(enterPos.xy) * stepSize;
 	randomStart = 0;
@@ -268,10 +275,12 @@ void main(void)
 			boundingCube = vec4(1.0);
 		} 
 
-
-
+    v.x = clamp(v.x, 0.0, 1.0);
+    v.y = clamp(v.y, 0.0, 1.0);
+    v.z = clamp(v.z, 0.0, 1.0);
+    v.a = clamp(v.a, 0.0, 1.0);
 	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
-	outColor += 0.0*texture(rayEnterTexture, texCoord);
-	outColor = v;
+	// outColor += 0.6*texture(rayEnterTexture, texCoord);
+	// outColor = v;
 	
 }

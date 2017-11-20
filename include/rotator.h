@@ -30,6 +30,7 @@ public:
 	float transX;
 	float transY;
 	float zoom;
+    float getIsInteracting();
 
 private:
 	double lastX;
@@ -38,6 +39,7 @@ private:
 	int lastRight;
 	int lastMiddle;
 	bool rotStarted;
+	bool zoomStarted;
 
 public:
 	void init(GLFWwindow *window);
