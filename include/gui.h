@@ -22,6 +22,7 @@ public:
   float getSelectedControlPoint();
   float getHoveredControlPoint();
   float getOpacityFactor();
+  float getRenderOption();
   glm::vec3 getVolumeSlicing();
   glm::vec2 getCursorPos();
   glm::vec2 getCursorPosTF();
@@ -57,6 +58,7 @@ private:
   bool isDragged = false;
   GLFWcursor *cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
   float opacityFactor = 1.0f;
+  float renderOption = 1.0f;
 
   glm::vec3 volumeSlicing = glm::vec3(0.0);
 

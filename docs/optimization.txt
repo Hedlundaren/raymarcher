@@ -1,21 +1,21 @@
 Priorities
 =====================
-Transfer function
-Cutting plane
 
 Ideas
 =====================
 Store unsigned data positions
-Precalculate shader variables
 Rotation with quaternions
-Transfer function
-GUI
 Clean main
-Lower rendering quality at interaction
-Nyquist sampling rate >= 2 samples per voxel (adaptive sampling)
+Photons
 
 Finished
 =====================
+Cutting plane
+Nyquist sampling rate >= 2 samples per voxel (adaptive sampling)
+Lower rendering quality at interaction
+GUI
+Transfer function
+Precalculate shader variables
 Jump directly to cube (Render frag-positions as colors vs SDF for unit cube)
 Framebuffer should take volumes > 100^3
 Remove unnecessary uniforms
@@ -23,7 +23,11 @@ random start depends on stepsize
 Bounding Cube
 Adaptive data type and size
 Marching cubes for entering position
-Actions with respect to time inbetween
+
+
+TO WRITE ABOUT
+=======================================
+
 
 Comments
 ===================================

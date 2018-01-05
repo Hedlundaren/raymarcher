@@ -107,6 +107,11 @@ float GUI::getOpacityFactor()
     return opacityFactor;
 }
 
+float GUI::getRenderOption()
+{
+    return renderOption;
+}
+
 void GUI::deleteControlPoint(int id)
 {
     if (id > 0 && id < (numberOfActiveControlPoints - 1.0))
@@ -175,6 +180,7 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
     int S = glfwGetKey(window, GLFW_KEY_S);
     int H = glfwGetKey(window, GLFW_KEY_H);
     int C = glfwGetKey(window, GLFW_KEY_C);
+    int R = glfwGetKey(window, GLFW_KEY_R);
     int n1 = glfwGetKey(window, GLFW_KEY_1);
     int n2 = glfwGetKey(window, GLFW_KEY_2);
     int n3 = glfwGetKey(window, GLFW_KEY_3);
@@ -188,25 +194,68 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
 
     std::string fileToLoad = "-1";
     if (n1)
+    {
         fileToLoad = "1";
+        if (ctrl)
+            renderOption = 1.0;
+    }
     if (n2)
+    {
         fileToLoad = "2";
+        if (ctrl)
+            renderOption = 2.0;
+    }
     if (n3)
+    {
         fileToLoad = "3";
+        if (ctrl)
+            renderOption = 3.0;
+    }
     if (n4)
+    {
         fileToLoad = "4";
+        if (ctrl)
+            renderOption = 4.0;
+    }
     if (n5)
+    {
         fileToLoad = "5";
+        if (ctrl)
+            renderOption = 5.0;
+    }
     if (n6)
+    {
+
         fileToLoad = "6";
+        if (ctrl)
+            renderOption = 6.0;
+    }
     if (n7)
+    {
+
         fileToLoad = "7";
+        if (ctrl)
+            renderOption = 7.0;
+    }
     if (n8)
+    {
+
         fileToLoad = "8";
+        if (ctrl)
+            renderOption = 8.0;
+    }
     if (n9)
+    {
         fileToLoad = "9";
+        if (ctrl)
+            renderOption = 9.0;
+    }
     if (n0)
+    {
         fileToLoad = "0";
+        if (ctrl)
+            renderOption = 0.0;
+    }
     activeTF = fileToLoad;
     // Load
     if (alt && fileToLoad != "-1" && timeSinceInteraction > maxTimeBetweenInteractions)
@@ -335,8 +384,6 @@ void GUI::update(GLFWwindow *&window, Framebuffer &colorPickBuffer)
                 {
                     controlPointPositions[selectedControlPoint] = glm::vec4(controlPointPositions[selectedControlPoint].x, 1.0 - offset, 0.0, 0.0);
                 }
-
-                
             }
             else
             {

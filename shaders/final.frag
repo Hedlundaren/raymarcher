@@ -26,8 +26,8 @@ const float EPSILON = 0.0001;
 vec4 lineColor = vec4(0.6);
 float pointSize = 7.0;
 float TF_height = 0.3;
-float TF_opacity = 0.7;
-vec4 TF_background = vec4(0.47);
+float TF_opacity = 0.3;
+vec4 TF_background = vec4(1.0);
 
 
 void drawPoint(inout vec4 color, vec2 point, vec4 pointColor, float type) {

@@ -13,6 +13,7 @@ uniform sampler2D controlPointValues;
 uniform sampler2D controlPointPositions;
 // uniform sampler3D test;
 
+uniform float renderOption;
 uniform float isInteracting;
 uniform float opacityFactor;
 uniform float numberOfControlPoints;
@@ -280,8 +281,36 @@ void main(void)
     v.y = clamp(v.y, 0.0, 1.0);
     v.z = clamp(v.z, 0.0, 1.0);
     v.a = clamp(v.a, 0.0, 1.0);
-	outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
 	// outColor += 0.6*texture(rayEnterTexture, texCoord);
 	// outColor = v;
+    if(renderOption > 7.5){
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+    } else if(renderOption > 6.5){
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+	    outColor += 0.6*texture(controlPointPositions, texCoord);
+    }
+    else if(renderOption > 5.5){
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+	    outColor += 0.6*texture(controlPointValues, texCoord);
+    }
+    else if(renderOption > 4.5){
+	    outColor = texture(volumeTexture, texCoord);
+    }
+    else if(renderOption > 3.5){
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+	    outColor += 0.6*texture(rayEnterTexture, texCoord);
+    }
+    else if(renderOption > 2.5){
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+	    outColor += 0.6*texture(rayExitTexture, texCoord);
+    }
+    else if(renderOption > 1.5){
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+    }
+    else if(renderOption > 0.5){
+	    outColor = v;
+    } else{
+	    outColor = v + vec4((vec3(0.4 - 0.3 * (pow(0.5 - texCoord.x, 2.0) + pow(0.5 - texCoord.y, 2.0))) * (1.0 - v.a)), 1) + boundingCube * boundingCubeColor;
+    }
 	
 }

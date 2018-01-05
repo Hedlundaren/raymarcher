@@ -23,6 +23,10 @@ https://github.com/inviwo/inviwo/blob/master/modules/pvm/pvmvolumereader.cpp
 Real-Time Volume graphics
 http://www.real-time-volume-graphics.org/?page_id=28
 
+Mandelbulb
+http://www.skytopia.com/project/fractal/2mandelbulb.html
+
+
 
 Special Thanks:
 Ingemar Ragnemalm - providing with volumes
