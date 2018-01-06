@@ -106,9 +106,11 @@ int main(int argc, char *argv[])
 
     glfwSetWindowTitle(window, "Marching time");
     glfwSetTime(0.0);
-
+    int frame = 0;
     do
     {
+
+        frame++;
 
         if (gui.getCursorPosTF().y > 1.0 && !gui.isDraggedFun())
         {
@@ -265,6 +267,12 @@ int main(int argc, char *argv[])
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        char buf[32];
+        float fps = frame / glfwGetTime();
+        sprintf(buf,"%.0000f", fps);
+        const char *test = "2";
+        glfwSetWindowTitle(window, buf);
 
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);

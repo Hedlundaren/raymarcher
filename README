@@ -1,0 +1,11 @@
+TO RUN ON LINUX:
+
+1. Dependencies you might have to install: 
+-GLEW 
+-GLFW 
+-glm
+
+2. run "make" in root
+
+3. run "./main" in root
+
